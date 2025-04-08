@@ -1,5 +1,10 @@
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
+import { ClerkProvider, ClerkLoaded } from '@clerk/clerk-expo'
+import { Slot } from 'expo-router'
+import { tokenCache } from '@clerk/clerk-expo/token-cache'
+
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 export default function RootLayout() {
   useFonts({
@@ -8,9 +13,13 @@ export default function RootLayout() {
     "montserrat-bold": require("./../assets/fonts/Montserrat-Bold.ttf"),
   });
   return (
-    <Stack>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="login/index" options={{ headerShown: false }} />
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+      <Stack>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="login/home" options={{ headerShown: false }} />
+        <Stack.Screen name="login/index" options={{ headerShown: false }} />
     </Stack>
+    </ClerkProvider>
+    
   );
 }

@@ -1,32 +1,12 @@
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import React from "react";
 import { theme } from "./../../constants/Colors";
-import { Link } from "expo-router";
 
-export default function LoginScreen() {
+export default function HomeScreen() {
   return (
-    <View style={styles.wrapper}>
-      <Image
-        source={require("./../../assets/images/login-dog.jpg")}
-        style={{ width: "100%", height: "500" }}
-      ></Image>
-      <View style={styles.containerText}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Ready to make a new friend?</Text>
-          <Text style={styles.text}>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sit
-            voluptas doloremque recusandae dolorem,{" "}
-          </Text>
-        </View>
-
-       
-
-
-         <Pressable style={styles.buttonContainer}>
-          <Link href={"./login/home"} style={styles.button}>Get Started</Link>
-        </Pressable>
-      </View>
-    </View>
+    <Text>
+     Home!
+    </Text>
   );
 }
 
