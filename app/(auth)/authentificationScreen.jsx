@@ -26,7 +26,7 @@ export default function AuthenticationScreen() {
 
       if (attempt.status === "complete") {
         await signInState.setActive({ session: attempt.createdSessionId });
-        router.replace("./../(home)");
+        router.replace("./../(tabs)/home");
       } else {
         console.warn("Further steps required:", attempt);
       }
@@ -60,7 +60,7 @@ export default function AuthenticationScreen() {
 
       if (attempt.status === "complete") {
         await signUpState.setActive({ session: attempt.createdSessionId });
-        router.replace("./../(home)");
+        router.replace("./../(tabs)/home");
       } else {
         console.warn("Verification incomplete:", attempt);
       }

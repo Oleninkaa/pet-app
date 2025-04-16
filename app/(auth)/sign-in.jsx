@@ -26,7 +26,7 @@ export default function Page() {
       if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
         console.log('Sign in successful')
-        router.replace('./../(home)')
+        router.replace('./../(tabs)/home')
       } else {
         // If the status isn't complete, check why. User might need to
         // complete further steps.

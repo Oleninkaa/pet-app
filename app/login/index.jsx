@@ -41,7 +41,7 @@ export default function LoginScreen() {
           // For web, defaults to current path
           // For native, you must pass a scheme, like AuthSession.makeRedirectUri({ scheme, path })
           // For more info, see https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions
-          redirectUrl: Linking.createURL("./../(home)", { scheme: "myapp" }),
+          redirectUrl: Linking.createURL("./../(tabs)/home", { scheme: "myapp" }),
         });
 
       // If sign in was successful, set the active session
