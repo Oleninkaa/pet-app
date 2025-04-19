@@ -22,7 +22,6 @@ export default function Slider() {
     const snapshot = await getDocs(collection(db, "Sliders"));
     const sliders = snapshot.docs.map((doc) => doc.data());
     setSlidersList(sliders);
-    console.log(sliders);
   };
 
   return (

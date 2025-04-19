@@ -12,7 +12,7 @@ import { db } from "../../config/FirebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import { theme } from "./../../constants/Colors";
 
-export default function Category() {
+export default function Category({ category }) {
   const [categoriesList, setCategoriesList] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("Dogs");
   useEffect(() => {
@@ -36,7 +36,10 @@ export default function Category() {
         renderItem={({ item, index }) => (
           <TouchableOpacity
             style={styles.categories}
-            onPress={() => setSelectedCategory(item.name)}
+            onPress={() => {
+              setSelectedCategory(item.name);
+              category(item.name);
+            }}
           >
             <View
               style={[
