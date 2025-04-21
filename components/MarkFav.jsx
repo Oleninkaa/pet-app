@@ -14,7 +14,6 @@ export default function MarkFav({ pet, color = "black" }) {
 
   const getFav = async () => {
     const result = await Shared.getFavList(user);
-    console.log(result);
     setFavList(result?.favourites ? result?.favourites : []);
   };
 
