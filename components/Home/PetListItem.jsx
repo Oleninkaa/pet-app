@@ -2,6 +2,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { theme } from "./../../constants/Colors";
 import { useRouter } from "expo-router";
+import MarkFav from "../MarkFav";
 
 export default function PetListItem({ pet }) {
   const router = useRouter();
@@ -15,6 +16,9 @@ export default function PetListItem({ pet }) {
         })
       }
     >
+      <View style={styles.heart}>
+        <MarkFav pet={pet} color={theme.colors.white} />
+      </View>
       <Image source={{ uri: pet?.imageUrl }} style={styles.image} />
       <Text style={styles.name}>{pet?.name}</Text>
       <View style={styles.infoContainer}>
@@ -26,6 +30,12 @@ export default function PetListItem({ pet }) {
 }
 
 const styles = StyleSheet.create({
+  heart: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+    zIndex: 1,
+  },
   image: {
     width: 150,
     height: 150,
