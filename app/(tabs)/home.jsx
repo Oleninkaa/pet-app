@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Pressable,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import React from "react";
 import { theme } from "./../../constants/Colors";
@@ -17,7 +18,7 @@ import { Link } from "expo-router";
 export default function HomeScreen() {
   return (
     <>
-      <View style={styles.wrapper}>
+      <ScrollView style={styles.wrapper}>
         {/*Header*/}
         <Header />
 
@@ -32,7 +33,7 @@ export default function HomeScreen() {
           <MaterialIcons name="pets" size={24} color={theme.colors.primary} />
           <Text style={styles.newPetText}>Add new pet</Text>
         </Link>
-      </View>
+      </ScrollView>
 
       <SignOutButton />
     </>

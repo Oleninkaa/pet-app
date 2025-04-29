@@ -13,6 +13,7 @@ export default function AuthenticationScreen() {
 
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [fullName, setFullName] = React.useState("");
   const [pendingVerification, setPendingVerification] = React.useState(false);
   const [code, setCode] = React.useState("");
 
@@ -36,11 +37,13 @@ export default function AuthenticationScreen() {
   };
 
   const handleSignUp = async () => {
+    console.log('fullName', fullName);
     if (!signUpState.isLoaded) return;
     try {
       await signUpState.signUp.create({
         emailAddress,
         password,
+        fullName,
       });
 
       await signUpState.signUp.prepareEmailAddressVerification({
@@ -56,7 +59,9 @@ export default function AuthenticationScreen() {
   const handleVerify = async () => {
     if (!signUpState.isLoaded) return;
     try {
-      const attempt = await signUpState.signUp.attemptEmailAddressVerification({ code });
+      const attempt = await signUpState.signUp.attemptEmailAddressVerification({
+        code,
+      });
 
       if (attempt.status === "complete") {
         await signUpState.setActive({ session: attempt.createdSessionId });
@@ -89,13 +94,16 @@ export default function AuthenticationScreen() {
             style={{ borderBottomWidth: 1, marginBottom: 20 }}
           />
 
-          <View style={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
-                  <Text>Don't have an account?</Text>
-                  <Link href="/sign-up">
-                    <Text>Sign up</Text>
-                  </Link>
-                </View>
-          <TouchableOpacity onPress={handleSignIn} style={{ backgroundColor: "#000", padding: 10 }}>
+          <View style={{ display: "flex", flexDirection: "row", gap: 3 }}>
+            <Text>Don't have an account?</Text>
+            <Link href="/sign-up">
+              <Text>Sign up</Text>
+            </Link>
+          </View>
+          <TouchableOpacity
+            onPress={handleSignIn}
+            style={{ backgroundColor: "#000", padding: 10 }}
+          >
             <Text style={{ color: "#fff", textAlign: "center" }}>Sign In</Text>
           </TouchableOpacity>
         </>
@@ -111,8 +119,13 @@ export default function AuthenticationScreen() {
                 placeholder="Verification code"
                 style={{ borderBottomWidth: 1, marginBottom: 20 }}
               />
-              <TouchableOpacity onPress={handleVerify} style={{ backgroundColor: "#000", padding: 10 }}>
-                <Text style={{ color: "#fff", textAlign: "center" }}>Verify</Text>
+              <TouchableOpacity
+                onPress={handleVerify}
+                style={{ backgroundColor: "#000", padding: 10 }}
+              >
+                <Text style={{ color: "#fff", textAlign: "center" }}>
+                  Verify
+                </Text>
               </TouchableOpacity>
             </>
           ) : (
@@ -131,8 +144,22 @@ export default function AuthenticationScreen() {
                 secureTextEntry
                 style={{ borderBottomWidth: 1, marginBottom: 20 }}
               />
-              <TouchableOpacity onPress={handleSignUp} style={{ backgroundColor: "#000", padding: 10 }}>
-                <Text style={{ color: "#fff", textAlign: "center" }}>Sign Up</Text>
+
+              <TextInput
+                value={fullName}
+                onChangeText={setFullName}
+                placeholder="Full name"
+                autoCapitalize="none"
+                style={{ borderBottomWidth: 1, marginBottom: 12 }}
+              />
+
+              <TouchableOpacity
+                onPress={handleSignUp}
+                style={{ backgroundColor: "#000", padding: 10 }}
+              >
+                <Text style={{ color: "#fff", textAlign: "center" }}>
+                  Sign Up
+                </Text>
               </TouchableOpacity>
             </>
           )}
