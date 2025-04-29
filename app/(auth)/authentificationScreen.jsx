@@ -14,6 +14,9 @@ export default function AuthenticationScreen() {
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [fullName, setFullName] = React.useState("");
+  const [firstName, setFirstName] = React.useState("");
+  const [lastName, setLastName] = React.useState("");
+  const [username, setUsername] = React.useState("");
   const [pendingVerification, setPendingVerification] = React.useState(false);
   const [code, setCode] = React.useState("");
 
@@ -37,12 +40,14 @@ export default function AuthenticationScreen() {
   };
 
   const handleSignUp = async () => {
-    console.log('fullName', fullName);
     if (!signUpState.isLoaded) return;
     try {
       await signUpState.signUp.create({
         emailAddress,
         password,
+        firstName,
+        lastName,
+        username,
         fullName,
       });
 
@@ -149,6 +154,30 @@ export default function AuthenticationScreen() {
                 value={fullName}
                 onChangeText={setFullName}
                 placeholder="Full name"
+                secureTextEntry
+                style={{ borderBottomWidth: 1, marginBottom: 20 }}
+              />
+
+              <TextInput
+                value={firstName}
+                onChangeText={setFirstName}
+                placeholder="First name"
+                autoCapitalize="none"
+                style={{ borderBottomWidth: 1, marginBottom: 12 }}
+              />
+
+              <TextInput
+                value={lastName}
+                onChangeText={setLastName}
+                placeholder="Last name"
+                autoCapitalize="none"
+                style={{ borderBottomWidth: 1, marginBottom: 12 }}
+              />
+
+              <TextInput
+                value={username}
+                onChangeText={setUsername}
+                placeholder="user name"
                 autoCapitalize="none"
                 style={{ borderBottomWidth: 1, marginBottom: 12 }}
               />
