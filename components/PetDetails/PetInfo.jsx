@@ -4,9 +4,11 @@ import { theme } from "../../constants/Colors";
 import MarkFav from "../MarkFav";
 
 export default function PetInfo({ pet }) {
+  const fixedUrl = fixFirebaseUrl(pet.imageUrl);
+
   return (
     <View>
-      <Image source={{ uri: pet?.imageUrl }} style={styles.image}></Image>
+      <Image source={{ uri: fixedUrl }} style={styles.image}></Image>
       <View style={styles.content}>
         <View>
           <Text style={styles.petName}>{pet?.name}</Text>
@@ -16,6 +18,15 @@ export default function PetInfo({ pet }) {
       </View>
     </View>
   );
+}
+
+function fixFirebaseUrl(url) {
+  const parts = url.split("/o/");
+  if (parts.length < 2) return url;
+  const [prefix, rest] = parts;
+  const [path, query] = rest.split("?");
+  const encodedPath = encodeURIComponent(path);
+  return `${prefix}/o/${encodedPath}?${query}`;
 }
 
 const styles = StyleSheet.create({

@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -14,11 +15,12 @@ const firebaseConfig = {
   storageBucket: "pet-adoption-69cf2.firebasestorage.app",
   messagingSenderId: "75486960480",
   appId: "1:75486960480:web:383c4fde76d2a26f945c05",
-  measurementId: "G-VR32PQQWEK"
+  measurementId: "G-VR32PQQWEK",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const storage = getStorage(app);
 
 //const analytics = getAnalytics(app);
