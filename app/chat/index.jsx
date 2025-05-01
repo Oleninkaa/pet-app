@@ -130,11 +130,7 @@ export default function ChatScreen() {
         animated: true,
         animationDuration: 400,
       }}
-      scrollToBottomComponent={() => (
-        <View style={{ padding: 10, backgroundColor: "#fff" }}>
-          <Text>↓</Text>
-        </View>
-      )}
+      
       timeFormat="HH:mm"
       dateFormat="DD MMM YYYY"
       showUserAvatar

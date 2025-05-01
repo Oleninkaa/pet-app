@@ -29,7 +29,7 @@ export default function HomeScreen() {
         <PetListByCategory />
 
         {/*Add new pet*/}
-        <Link href={"./add-new-pet"} style={styles.addNewPet}>
+        <Link href={"../add-new-pet"} style={styles.addNewPet}>
           <MaterialIcons name="pets" size={24} color={theme.colors.primary} />
           <Text style={styles.newPetText}>Add new pet</Text>
         </Link>

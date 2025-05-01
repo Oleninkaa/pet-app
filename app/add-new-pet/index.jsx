@@ -12,9 +12,9 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
-import { theme } from "./../../../constants/Colors";
+import { theme } from "../../constants/Colors"
 import { Picker } from "@react-native-picker/picker";
-import { db, storage } from "../../../config/FirebaseConfig";
+import { db, storage } from "../../config/FirebaseConfig";
 import { collection, doc, getDocs, setDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -149,7 +149,7 @@ export default function AddNewPet() {
         {!image ? (
           <Image
             style={styles.image}
-            source={require("./../../../assets/images/paw.jpg")}
+            source={require("./../../assets/images/paw.jpg")}
           />
         ) : (
           <Image style={styles.image} source={{ uri: image }} />
