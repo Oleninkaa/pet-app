@@ -92,6 +92,7 @@ export default function PetDetails() {
               name: pet?.username || "No Name",
             },
           ],
+          userIds: [userEmail, petEmail],
           createdAt: new Date().toISOString(),
         };
 
