@@ -39,8 +39,6 @@ export default function PetDetails() {
 
   const initiateChat = async () => {
     try {
-      console.log("initiateChat started");
-
       // Перевірка наявності обов'язкових полів
       if (!user?.primaryEmailAddress?.emailAddress || !pet?.email) {
         Alert.alert("Error", "Email information is missing");
@@ -59,18 +57,12 @@ export default function PetDetails() {
       const docId1 = `${userEmail}_${petEmail}`;
       const docId2 = `${petEmail}_${userEmail}`;
 
-      console.log("Doc IDs:", docId1, docId2);
-
-      console.log("%%%%%%%%%%%%%%%%%%%%:", user);
-
       // Пошук існуючого чату
       const q = query(
         collection(db, "Chat"),
         where("id", "in", [docId1, docId2])
       );
       const querySnapshot = await getDocs(q);
-
-      console.log("Query snapshot size:", querySnapshot.size);
 
       if (querySnapshot.size > 0) {
         // Якщо чат існує
