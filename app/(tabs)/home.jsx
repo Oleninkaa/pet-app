@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import React from "react";
 import { theme } from "./../../constants/Colors";
-import { SignOutButton } from "@/components/SignOutButton";
+
 import Header from "../../components/Home/Header";
 import Slider from "../../components/Home/Slider";
 import PetListByCategory from "../../components/Home/PetListByCategory";
@@ -34,8 +34,6 @@ export default function HomeScreen() {
           <Text style={styles.newPetText}>Add new pet</Text>
         </Link>
       </ScrollView>
-
-      <SignOutButton />
     </>
   );
 }

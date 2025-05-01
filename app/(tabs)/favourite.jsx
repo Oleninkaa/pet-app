@@ -44,7 +44,7 @@ export default function Favourite() {
         data={favPetList}
         numColumns={2}
         style={styles.wrapper}
-        onRefresh={getFavPetList}
+        onRefresh={() => getFavPetList()}
         refreshing={loader}
         renderItem={({ item }) => (
           <View>
