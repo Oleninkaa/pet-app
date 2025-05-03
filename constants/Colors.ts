@@ -5,8 +5,9 @@ export const theme = {
     accent: "#26cc90",
     gray: "#141415",
     gray_light: "#313131",
+    gray_ultra_light: "#8B8B8B",
     white: "#fff",
-    light:'#CEEAEA'
+    light: "#E3F2F2",
   },
 
   spacing: {
@@ -14,18 +15,19 @@ export const theme = {
     small: 10,
     medium: 14,
     large: 20,
+    xLarge: 40,
   },
 
-  borderRadius:{
+  borderRadius: {
     normal: 5,
     circle: 90,
-    figure: '50%',
+    figure: "50%",
   },
 
-  fontSize:{
+  fontSize: {
     small: 12,
     medium: 16,
     large: 20,
     xlarge: 30,
-  }
+  },
 };

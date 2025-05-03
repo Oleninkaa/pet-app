@@ -1,11 +1,22 @@
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSignIn, useSignUp } from "@clerk/clerk-expo";
 import React from "react";
 import { Link } from "expo-router";
+import InputField from "../../components/InputField";
+import { theme } from "../../constants/Colors";
+import ButtonPressable from "../../components/ButtonPressable";
+import OtpInput from "../../components/OtpInput";
 
 export default function AuthenticationScreen() {
-  const { mode } = useLocalSearchParams(); // "sign-in" або "sign-up"
+  const { mode } = useLocalSearchParams(); // "sign-in" or "sign-up"
   const router = useRouter();
 
   const signInState = useSignIn();
@@ -19,6 +30,7 @@ export default function AuthenticationScreen() {
   const [username, setUsername] = React.useState("");
   const [pendingVerification, setPendingVerification] = React.useState(false);
   const [code, setCode] = React.useState("");
+  const [isResending, setIsResending] = React.useState(false);
 
   const handleSignIn = async () => {
     if (!signInState.isLoaded) return;
@@ -64,6 +76,11 @@ export default function AuthenticationScreen() {
   const handleVerify = async () => {
     if (!signUpState.isLoaded) return;
     try {
+      if (!code) {
+        console.error("Verification code is required");
+        return;
+      }
+
       const attempt = await signUpState.signUp.attemptEmailAddressVerification({
         code,
       });
@@ -79,117 +96,146 @@ export default function AuthenticationScreen() {
     }
   };
 
+  const handleResendCode = async () => {
+    if (!signUpState.isLoaded) return;
+    try {
+      setIsResending(true);
+      await signUpState.signUp.prepareEmailAddressVerification({
+        strategy: "email_code",
+      });
+      // Optional: Show a success message to the user
+      alert("Verification code resent successfully!");
+    } catch (err) {
+      console.error("Resend error:", JSON.stringify(err, null, 2));
+      alert("Failed to resend verification code. Please try again.");
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  const onOtpSubmit = (otp) => {
+    setCode(otp);
+  };
+
   return (
-    <View style={{ padding: 20, flex: 1, justifyContent: "center" }}>
+    <View style={styles.wrapper}>
       {mode === "sign-in" ? (
         <>
-          <Text style={{ fontSize: 24, marginBottom: 20 }}>Sign In</Text>
-          <TextInput
-            value={emailAddress}
-            onChangeText={setEmailAddress}
-            placeholder="Email"
-            autoCapitalize="none"
-            style={{ borderBottomWidth: 1, marginBottom: 12 }}
-          />
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Password"
-            secureTextEntry
-            style={{ borderBottomWidth: 1, marginBottom: 20 }}
-          />
+          <Text style={styles.title}>Login</Text>
+          <View style={styles.inputsGroup}>
+            <InputField
+              value={emailAddress}
+              onChangeText={setEmailAddress}
+              secureTextEntry={false}
+              placeholder={"Email"}
+              autoCapitalize="none"
+            />
 
-          <View style={{ display: "flex", flexDirection: "row", gap: 3 }}>
-            <Text>Don't have an account?</Text>
-            <Link href="/sign-up">
-              <Text>Sign up</Text>
+            <InputField
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+              placeholder={"Password"}
+              autoCapitalize="none"
+            />
+          </View>
+
+          <ButtonPressable text={"Login"} onPress={handleSignIn} />
+
+          <View style={styles.routing}>
+            <Text style={styles.routingText}>Don't have an account?</Text>
+            <Link
+              href={{
+                pathname: "../(auth)/authentificationScreen",
+                params: { mode: "sign-up" },
+              }}
+              style={styles.routingLink}
+              asChild
+            >
+              <Text style={styles.routingLinkText}>Sign up</Text>
             </Link>
           </View>
-          <TouchableOpacity
-            onPress={handleSignIn}
-            style={{ backgroundColor: "#000", padding: 10 }}
-          >
-            <Text style={{ color: "#fff", textAlign: "center" }}>Sign In</Text>
-          </TouchableOpacity>
         </>
       ) : (
         <>
-          <Text style={{ fontSize: 24, marginBottom: 20 }}>Sign Up</Text>
+          <Text style={styles.title}>Sign Up</Text>
+
           {pendingVerification ? (
             <>
-              <Text>We sent a code to your email</Text>
-              <TextInput
-                value={code}
-                onChangeText={setCode}
-                placeholder="Verification code"
-                style={{ borderBottomWidth: 1, marginBottom: 20 }}
-              />
-              <TouchableOpacity
+              <Text style={styles.verificationText}>
+                We sent a code to {emailAddress || "your email."}
+              </Text>
+
+              <OtpInput length={6} onOtpSubmit={onOtpSubmit} />
+              <ButtonPressable
+                text={"Continue"}
                 onPress={handleVerify}
-                style={{ backgroundColor: "#000", padding: 10 }}
-              >
-                <Text style={{ color: "#fff", textAlign: "center" }}>
-                  Verify
+                disabled={!code}
+              />
+
+              <View style={styles.routing}>
+                <Text style={styles.routingText}>
+                  You didn't receive the code?
                 </Text>
-              </TouchableOpacity>
+                <Pressable onPress={handleResendCode} disabled={isResending}>
+                  <Text
+                    style={[
+                      styles.routingLinkText,
+                      isResending && styles.disabledText,
+                    ]}
+                  >
+                    {isResending ? "Sending..." : "Resend"}
+                  </Text>
+                </Pressable>
+              </View>
             </>
           ) : (
             <>
-              <TextInput
-                value={emailAddress}
-                onChangeText={setEmailAddress}
-                placeholder="Email"
-                autoCapitalize="none"
-                style={{ borderBottomWidth: 1, marginBottom: 12 }}
-              />
-              <TextInput
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Password"
-                secureTextEntry
-                style={{ borderBottomWidth: 1, marginBottom: 20 }}
-              />
+              <View style={styles.inputsGroup}>
+                <InputField
+                  value={emailAddress}
+                  onChangeText={setEmailAddress}
+                  secureTextEntry={false}
+                  placeholder={"Email"}
+                  autoCapitalize="none"
+                />
 
-              <TextInput
-                value={fullName}
-                onChangeText={setFullName}
-                placeholder="Full name"
-                secureTextEntry
-                style={{ borderBottomWidth: 1, marginBottom: 20 }}
-              />
+                <InputField
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={true}
+                  placeholder={"Password"}
+                  autoCapitalize="none"
+                />
 
-              <TextInput
-                value={firstName}
-                onChangeText={setFirstName}
-                placeholder="First name"
-                autoCapitalize="none"
-                style={{ borderBottomWidth: 1, marginBottom: 12 }}
-              />
+                <InputField
+                  value={username}
+                  onChangeText={setUsername}
+                  secureTextEntry={false}
+                  placeholder={"Username"}
+                  autoCapitalize="none"
+                />
 
-              <TextInput
-                value={lastName}
-                onChangeText={setLastName}
-                placeholder="Last name"
-                autoCapitalize="none"
-                style={{ borderBottomWidth: 1, marginBottom: 12 }}
-              />
+                <View style={styles.fullName}>
+                  <InputField
+                    value={firstName}
+                    onChangeText={setFirstName}
+                    secureTextEntry={false}
+                    placeholder={"First name"}
+                    autoCapitalize="none"
+                  />
 
-              <TextInput
-                value={username}
-                onChangeText={setUsername}
-                placeholder="user name"
-                autoCapitalize="none"
-                style={{ borderBottomWidth: 1, marginBottom: 12 }}
-              />
+                  <InputField
+                    value={lastName}
+                    onChangeText={setLastName}
+                    secureTextEntry={false}
+                    placeholder={"Last name"}
+                    autoCapitalize="none"
+                  />
+                </View>
+              </View>
 
-              <TouchableOpacity
-                onPress={handleSignUp}
-                style={{ backgroundColor: "#000", padding: 10 }}
-              >
-                <Text style={{ color: "#fff", textAlign: "center" }}>
-                  Sign Up
-                </Text>
-              </TouchableOpacity>
+              <ButtonPressable text={"Sign Up"} onPress={handleSignUp} />
             </>
           )}
         </>
@@ -197,3 +243,57 @@ export default function AuthenticationScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    padding: theme.spacing.xLarge,
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: theme.colors.white,
+    gap: theme.spacing.xLarge,
+  },
+
+  title: {
+    fontFamily: "inter-bold",
+    color: theme.colors.primary,
+    fontSize: theme.fontSize.xlarge,
+  },
+  inputsGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: theme.spacing.medium,
+  },
+
+  routing: {
+    display: "flex",
+    flexDirection: "row",
+    gap: 3,
+    justifyContent: "center",
+  },
+
+  routingText: {
+    fontFamily: "inter",
+    color: theme.colors.gray_light,
+    fontSize: theme.fontSize.medium,
+  },
+  routingLinkText: {
+    fontFamily: "inter-bold",
+    color: theme.colors.gray_light,
+    fontSize: theme.fontSize.medium,
+  },
+  disabledText: {
+    opacity: 0.5,
+  },
+  fullName: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  verificationText: {
+    fontFamily: "inter",
+    color: theme.colors.gray_light,
+    fontSize: theme.fontSize.medium,
+  },
+});

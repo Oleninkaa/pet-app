@@ -94,15 +94,25 @@ export default function LoginScreen() {
           <SignedOut>
             <View style={styles.authOptions}>
               <ButtonPressable
+                style={styles.button}
                 text={"Login"}
-                pathname={"../(auth)/authentificationScreen"}
-                params={{ mode: "sign-in" }}
+                onPress={() =>
+                  router.push({
+                    pathname: "../(auth)/authentificationScreen",
+                    params: { mode: "sign-in" },
+                  })
+                }
               />
 
               <ButtonPressable
+                style={styles.button}
                 text={"Sign Up"}
-                pathname={"../(auth)/authentificationScreen"}
-                params={{ mode: "sign-up" }}
+                onPress={() =>
+                  router.push({
+                    pathname: "../(auth)/authentificationScreen",
+                    params: { mode: "sign-up" },
+                  })
+                }
               />
             </View>
           </SignedOut>
@@ -165,5 +175,8 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.figure,
     margin: -50,
     position: "absolute",
+  },
+  button: {
+    width: 170,
   },
 });
