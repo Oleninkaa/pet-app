@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Shared from "./../Shared/Shared";
 import { useUser } from "@clerk/clerk-expo";
+import { theme } from "../constants/Colors";
 
 export default function MarkFav({ pet, color = "black" }) {
   const { user } = useUser();
@@ -29,15 +30,17 @@ export default function MarkFav({ pet, color = "black" }) {
     await Shared.updateFav(user, favResult);
     getFav();
   };
+
+  const size = 25;
   return (
     <View>
       {favList.includes(pet.id) ? (
         <Pressable onPress={removeFromFav}>
-          <Ionicons name="heart" size={30} color={"red"} />
+          <Ionicons name="heart" size={size} color={theme.colors.accent} />
         </Pressable>
       ) : (
         <Pressable onPress={() => addToFav()}>
-          <Ionicons name="heart-outline" size={30} color={color} />
+          <Ionicons name="heart-outline" size={size} color={color} />
         </Pressable>
       )}
     </View>

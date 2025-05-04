@@ -37,9 +37,13 @@ export default function PetListByCategory() {
       )}
 
       <FlatList
+        showsHorizontalScrollIndicator={false}
         data={petList}
         horizontal={true}
-        style={{ marginTop: 10 }}
+        style={{
+          marginTop: theme.spacing.medium,
+          paddingBottom: theme.spacing.medium,
+        }}
         refreshing={loader}
         onRefresh={() => getPetList("Dogs")}
         renderItem={({ item, index }) => <PetListItem pet={item} />}

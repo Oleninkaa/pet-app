@@ -77,8 +77,8 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.xSmall,
   },
   image: {
-    width: 100,
-    height: 150,
+    width: 80,
+    height: 120,
   },
   image_container: {
     overflow: "hidden",

@@ -8,6 +8,11 @@ export const theme = {
     gray_ultra_light: "#8B8B8B",
     white: "#fff",
     light: "#E3F2F2",
+
+    female: "#EC63B0",
+    male: "#618FE3",
+    female_bg: "#FCD6EB",
+    male_bg: "#D6E2F8",
   },
 
   spacing: {
