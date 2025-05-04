@@ -11,7 +11,6 @@ import { db } from "../../config/FirebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import { theme } from "./../../constants/Colors";
 
-
 export default function Slider() {
   const [slidersList, setSlidersList] = useState([]);
 
@@ -33,11 +32,15 @@ export default function Slider() {
         keyExtractor={(item, index) => index.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
-        renderItem={({ item, index }) => (  // Add index to destructure
-          <View style={[
-            styles.slide,
-            index === slidersList.length - 1 && { paddingRight: 0 }  // Use slidersList instead of data
-          ]}>
+        renderItem={(
+          { item, index } // Add index to destructure
+        ) => (
+          <View
+            style={[
+              styles.slide,
+              index === slidersList.length - 1 && { paddingRight: 0 }, // Use slidersList instead of data
+            ]}
+          >
             <Image
               source={{ uri: item.imageUrl }}
               style={styles.image}
@@ -60,8 +63,8 @@ const styles = StyleSheet.create({
     paddingRight: theme.spacing.small,
   },
   image: {
-    width: Dimensions.get("screen").width - theme.spacing.large*2,
-    height: 150,
+    width: Dimensions.get("screen").width - theme.spacing.large * 2,
+    height: 170,
     borderRadius: 10,
     objectFit: "cover",
   },

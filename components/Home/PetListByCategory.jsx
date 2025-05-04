@@ -6,7 +6,7 @@ import { db } from "../../config/FirebaseConfig";
 import React, { useEffect, useState } from "react";
 import PetListItem from "./PetListItem";
 
-export default function PetListByCategory() {
+export default function PetListByCategory({ customStyle }) {
   const [petList, setPetList] = useState([]);
   const [loader, setLoader] = useState(false);
   console.log("PetListByCategory", petList);
@@ -25,10 +25,10 @@ export default function PetListByCategory() {
     setLoader(false);
   };
   return (
-    <View>
+    <View style={customStyle}>
       <Category category={(value) => getPetList(value)} />
       {petList.length === 0 && (
-        <View style={{ marginTop: 20, alignItems: "center" }}>
+        <View style={{ alignItems: "center" }}>
           <Image
             source={require("./../../assets/images/no_results.png")}
           ></Image>
@@ -41,8 +41,8 @@ export default function PetListByCategory() {
         data={petList}
         horizontal={true}
         style={{
-          marginTop: theme.spacing.medium,
           paddingBottom: theme.spacing.medium,
+          flexGrow: 0,
         }}
         refreshing={loader}
         onRefresh={() => getPetList("Dogs")}
