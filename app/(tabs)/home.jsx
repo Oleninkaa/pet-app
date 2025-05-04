@@ -40,8 +40,8 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   wrapper: {
-    padding: theme.spacing.small,
-    margin: theme.spacing.small,
+    backgroundColor: theme.colors.white,
+    padding: theme.spacing.large,
   },
   addNewPet: {
     display: "flex",

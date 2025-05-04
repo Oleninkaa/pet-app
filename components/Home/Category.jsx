@@ -27,7 +27,7 @@ export default function Category({ category }) {
 
   return (
     <View style={styles.wrapper}>
-      <Text style={styles.text}>Category</Text>
+      <Text style={styles.text}>Categories</Text>
 
       <FlatList
         data={categoriesList}
@@ -48,8 +48,15 @@ export default function Category({ category }) {
               ]}
             >
               <Image source={{ uri: item?.imageUrl }} style={styles.image} />
+              <Text
+                style={[
+                  styles.imageText,
+                  selectedCategory === item.name && styles.imageTextSelected,
+                ]}
+              >
+                {item?.name}
+              </Text>
             </View>
-            <Text style={styles.imageText}>{item?.name}</Text>
           </TouchableOpacity>
         )}
       />
@@ -63,23 +70,23 @@ const styles = StyleSheet.create({
   },
 
   text: {
-    fontFamily: "montserrat",
-    fontSize: 20,
+    fontFamily: "inter-bold",
+    fontSize: theme.fontSize.large,
+    color: theme.colors.gray,
+    paddingLeft: theme.spacing.small,
+    paddingVertical: theme.spacing.xSmall,
   },
   image: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 100,
+    height: 150,
   },
   image_container: {
-    backgroundColor: theme.colors.primary_light,
-    padding: 15,
-    justifyContent: "center",
-    alignItems: "center",
+    overflow: "hidden",
     borderRadius: 10,
     margin: 5,
-    borderColor: theme.colors.primary,
-    borderWidth: 1,
+    borderWidth: 2,
+    borderColor: theme.colors.accent,
+    position: "relative",
   },
 
   categories: {
@@ -87,12 +94,19 @@ const styles = StyleSheet.create({
   },
 
   imageText: {
-    fontFamily: "montserrat",
-    fontSize: 12,
+    fontFamily: "inter-bold",
+    fontSize: theme.fontSize.medium,
+    color: theme.colors.white,
     textAlign: "center",
+    position: "absolute",
+    top: theme.spacing.xSmall,
+    transform: [{ translateX: -0.5 }],
+    width: "100%",
   },
   categorySelected: {
-    backgroundColor: theme.colors.accent,
-    borderColor: theme.colors.accent,
+    borderColor: theme.colors.gray,
+  },
+  imageTextSelected: {
+    color: theme.colors.gray,
   },
 });

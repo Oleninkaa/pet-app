@@ -5,27 +5,38 @@ import { useRouter } from "expo-router";
 import MarkFav from "../MarkFav";
 
 export default function PetListItem({ pet }) {
+
+  
   const router = useRouter();
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={() =>
-        router.push({
-          pathname: "/pet-details",
-          params: pet,
-        })
-      }
-    >
-      <View style={styles.heart}>
-        <MarkFav pet={pet} color={theme.colors.white} />
-      </View>
-      <Image source={{ uri: pet?.imageUrl }} style={styles.image} />
-      <Text style={styles.name}>{pet?.name}</Text>
-      <View style={styles.infoContainer}>
-        <Text style={styles.breed}>{pet?.breed}</Text>
-        <Text style={styles.age}>{pet?.age} yrs</Text>
-      </View>
-    </TouchableOpacity>
+    <>
+      {!pet && (
+        <View style={styles.container}>
+          <Text style={styles.name}>No pets available</Text>
+        </View>
+      )}
+      {pet && (
+        <TouchableOpacity
+          style={styles.container}
+          onPress={() =>
+            router.push({
+              pathname: "/pet-details",
+              params: pet,
+            })
+          }
+        >
+          <View style={styles.heart}>
+            <MarkFav pet={pet} color={theme.colors.white} />
+          </View>
+          <Image source={{ uri: pet.imageUrl }} style={styles.image} />
+          <Text style={styles.name}>{pet.name}</Text>
+          <View style={styles.infoContainer}>
+            <Text style={styles.breed}>{pet.breed}</Text>
+            <Text style={styles.age}>{pet.age} yrs</Text>
+          </View>
+        </TouchableOpacity>
+      )}
+    </>
   );
 }
 

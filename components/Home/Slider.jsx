@@ -9,6 +9,8 @@ import {
 import React, { useEffect, useState } from "react";
 import { db } from "../../config/FirebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
+import { theme } from "./../../constants/Colors";
+
 
 export default function Slider() {
   const [slidersList, setSlidersList] = useState([]);
@@ -31,8 +33,11 @@ export default function Slider() {
         keyExtractor={(item, index) => index.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <View style={styles.slide}>
+        renderItem={({ item, index }) => (  // Add index to destructure
+          <View style={[
+            styles.slide,
+            index === slidersList.length - 1 && { paddingRight: 0 }  // Use slidersList instead of data
+          ]}>
             <Image
               source={{ uri: item.imageUrl }}
               style={styles.image}
@@ -47,15 +52,17 @@ export default function Slider() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 20,
+    borderRadius: 10,
+    overflow: "hidden",
   },
   slide: {
     alignItems: "center",
-    marginHorizontal: 10,
+    paddingRight: theme.spacing.small,
   },
   image: {
-    width: Dimensions.get("screen").width * 0.9,
-    height: 200,
+    width: Dimensions.get("screen").width - theme.spacing.large*2,
+    height: 150,
     borderRadius: 10,
+    objectFit: "cover",
   },
 });
