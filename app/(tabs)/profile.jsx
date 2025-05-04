@@ -5,99 +5,130 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
+  Pressable,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { theme } from "./../../constants/Colors";
-import { useUser, useClerk } from "@clerk/clerk-expo";
+import { useUser } from "@clerk/clerk-expo";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
-import { useAuth } from "@clerk/clerk-react";
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
+import EditAvatar from "../../components/EditAvatar";
 
 export default function Profile() {
-  const { user } = useUser();
+  const { user } = useUser(); // User is definitely authenticated
   const router = useRouter();
-
-  const { signOut } = useClerk();
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await user?.delete();
       router.push("../login");
     } catch (err) {
-      console.error(JSON.stringify(err, null, 2));
+      console.error("Sign out error:", err);
     }
   };
 
   const Menu = [
-    {
-      id: 1,
-      name: "Add New Pet",
-      icon: "add-circle",
-      path: "/add-new-pet",
-    },
-    {
-      id: 2,
-      name: "Favoutites",
-      icon: "heart",
-      path: "/(tabs)/favourite",
-    },
-    {
-      id: 3,
-      name: "Inbox",
-      icon: "chatbubble",
-      path: "/(tabs)/inbox",
-    },
-    {
-      id: 4,
-      name: "Logout",
-      icon: "exit",
-      path: "logout",
-    },
-    {
-      id: 5,
-      name: "My Post",
-      icon: "bookmark",
-      path: "/user-post",
-    },
+    { id: 1, name: "Add New Pet", icon: "add-circle", path: "/add-new-pet" },
+    { id: 2, name: "Favorites", icon: "heart", path: "/(tabs)/favourite" },
+    { id: 3, name: "Inbox", icon: "chatbubble", path: "/(tabs)/inbox" },
+    { id: 4, name: "My Post", icon: "bookmark", path: "/user-post" },
+    { id: 5, name: "Logout", icon: "exit", path: "logout" },
   ];
 
   const onPressMenu = (menu) => {
-    console.log(menu.name);
-    if (menu.name == "Logout") {
+    if (menu.name === "Logout") {
       handleSignOut();
       return;
     }
     router.push(menu.path);
   };
 
+  const uploadAvatar = async () => {
+    setIsUploading(true);
+
+    try {
+      // 1. Get image permission
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission needed", "Please allow photo access");
+        return;
+      }
+
+      // 2. Pick image
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (result.canceled) return;
+
+      const uri = result.assets[0].uri;
+
+      // 3. Convert to base64
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // 4. Update profile image
+      await user?.setProfileImage({
+        file: `data:image/jpeg;base64,${base64}`,
+      });
+
+      Alert.alert("Success", "Profile updated!");
+    } catch (error) {
+      console.error("Upload error:", error);
+      Alert.alert("Error", error.message || "Update failed");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <View style={styles.wrapper}>
       <Text style={styles.content}>Profile</Text>
+
       <View style={styles.container}>
-        <Image source={{ uri: user?.imageUrl }} style={styles.image} />
+        <EditAvatar />
+
         <Text style={styles.fullName}>{user?.fullName}</Text>
-        <Text style={styles.email}>
-          {user?.primaryEmailAddress?.emailAddress}
-        </Text>
+        <Text style={styles.username}>{["@", user?.username]}</Text>
+        <View style={styles.emailContainer}>
+          <Ionicons
+            name="mail"
+            size={24}
+            color={theme.colors.gray_ultra_light}
+          />
+          <Text style={styles.email}>
+            {user?.primaryEmailAddress?.emailAddress}
+          </Text>
+        </View>
       </View>
 
       <FlatList
         data={Menu}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={() => onPressMenu(item)}
             style={styles.listIcons}
-            key={index}
+            onPress={() => onPressMenu(item)}
           >
             <Ionicons
-              name={item?.icon}
+              name={item.icon}
               size={30}
               color={theme.colors.primary}
               style={styles.icon}
             />
-            <Text style={styles.iconName}>{item?.name}</Text>
+            <Text style={styles.iconName}>{item.name}</Text>
           </TouchableOpacity>
         )}
+        keyExtractor={(item) => item.id.toString()}
       />
     </View>
   );
@@ -105,50 +136,60 @@ export default function Profile() {
 
 const styles = StyleSheet.create({
   wrapper: {
+    flex: 1,
     padding: 20,
     marginTop: 20,
   },
   content: {
-    fontFamily: "montserrat-medium",
-    fontSize: 30,
+    fontFamily: "inter-bold",
+    fontSize: theme.fontSize.xlarge,
+    color: theme.colors.gray_light,
   },
   container: {
-    display: "flex",
     alignItems: "center",
     marginVertical: 25,
     gap: 7,
   },
-  image: {
-    height: 80,
-    width: 80,
-    borderRadius: 90,
-  },
+
   fullName: {
-    fontFamily: "montserrat-bold",
-    fontSize: 20,
+    fontFamily: "inter-bold",
+    fontSize: theme.fontSize.xlarge,
+    color: theme.colors.primary_light,
   },
   email: {
-    fontFamily: "montserrat",
-    fontSize: 16,
-    color: theme.colors.gray,
+    fontFamily: "inter",
+    fontSize: theme.fontSize.medium,
+    color: theme.colors.gray_ultra_light,
+  },
+  emailContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.xSmall,
+  },
+
+  username: {
+    fontFamily: "inter",
+    fontSize: theme.fontSize.medium,
+    color: theme.colors.gray_ultra_light,
   },
   listIcons: {
-    marginVertical: 10,
-    display: "flex",
+    marginVertical: theme.spacing.xSmall,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
     backgroundColor: theme.colors.white,
     padding: 10,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.normal,
   },
   icon: {
     padding: 10,
     backgroundColor: theme.colors.primary_light,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.circle,
   },
   iconName: {
-    fontFamily: "montserrat",
-    fontSize: 20,
+    fontFamily: "inter",
+    fontSize: theme.fontSize.large,
+    color: theme.colors.gray_light,
   },
 });
