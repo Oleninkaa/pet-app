@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flexWrap: "wrap",
+    backgroundColor: theme.colors.white,
   },
   name: {
     fontSize: theme.fontSize.large,

@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing.medium,
   },
   wrapper: {
-    backgroundColor: theme.colors.white,
+  
     padding: theme.spacing.large,
   },
 
@@ -53,27 +53,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     height: "100%",
   },
-  // addNewPet: {
-  //   display: "flex",
-  //   flexDirection: "row",
-  //   alignItems: "center",
-  //   justifyContent: "center",
-  //   gap: 10,
-  //   padding: 20,
-  //   marginTop: 20,
-  //   backgroundColor: theme.colors.primary_light,
-  //   borderWidth: 1,
-  //   borderColor: theme.colors.primary,
-  //   borderRadius: 15,
-  //   borderStyle: "dashed",
-  //   textAlign: "center",
-  // },
-
-  // newPetText: {
-  //   fontFamily: "montserrat",
-  //   fontSize: 18,
-  //   color: theme.colors.primary,
-  // },
+  
 
   addNewPet: {
     backgroundColor: theme.colors.light,
