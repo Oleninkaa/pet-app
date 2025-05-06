@@ -4,6 +4,7 @@ import { theme } from "../../constants/Colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function OwnerInfo({ pet }) {
+  console.log('\n\n\n -----------', pet);
   return (
     <View style={styles.container}>
       <View style={styles.card}>

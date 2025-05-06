@@ -22,19 +22,22 @@ export default function AboutPet({ pet }) {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    paddingVertical: theme.spacing.medium,
   },
   title: {
-    fontFamily: "montserrat-medium",
-    fontSize: 20,
+    fontFamily: "inter-bold",
+    fontSize: theme.fontSize.large,
+    color: theme.colors.primary_light,
   },
   text: {
-    fontFamily: "montserrat",
-    fontSize: 14,
+    marginTop: theme.spacing.xSmall,
+    fontFamily: "inter",
+    fontSize: theme.fontSize.medium,
+    color: theme.colors.gray_light,
   },
   readMore: {
-    fontFamily: "montserrat-medium",
-    fontSize: 14,
+    fontFamily: "inter-semiBold",
+    fontSize: theme.fontSize.medium,
     color: theme.colors.accent,
   },
 });

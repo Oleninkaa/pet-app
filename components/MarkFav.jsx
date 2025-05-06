@@ -5,7 +5,7 @@ import Shared from "./../Shared/Shared";
 import { useUser } from "@clerk/clerk-expo";
 import { theme } from "../constants/Colors";
 
-export default function MarkFav({ pet, color = "black", isSelected, onSelect, selectMode }) {
+export default function MarkFav({ pet, color = "black", size = 25, isSelected, onSelect, selectMode, customFill }) {
   const { user } = useUser();
   const [favList, setFavList] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -53,11 +53,11 @@ export default function MarkFav({ pet, color = "black", isSelected, onSelect, se
     setFavList(updatedFavList);
   };
 
-  const size = 25;
+  
   
   // Визначення стану для відображення
   const showFilled = selectMode ? isSelected : favList.includes(pet.id);
-  const iconColor = showFilled ? theme.colors.accent : color;
+  const iconColor = showFilled ? customFill || theme.colors.accent : color;
 
   return (
     <Pressable onPress={handlePress} disabled={isProcessing}>

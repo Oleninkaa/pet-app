@@ -5,7 +5,9 @@ import { theme } from "../../constants/Colors";
 export default function PetSubInfoCard({ icon, title, value }) {
   return (
     <View style={styles.card}>
+      <View style={styles.imageContainer}>
       <Image source={icon} style={styles.image} />
+      </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.value}>{value !== undefined ? value : ""}</Text>
@@ -15,12 +17,17 @@ export default function PetSubInfoCard({ icon, title, value }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
+
+  imageContainer:{
+    backgroundColor: theme.colors.light,
+    width: 50,
+    height: 50,
+    padding: 5,
+    borderRadius: theme.borderRadius.normal
   },
   image: {
-    width: 40,
-    height: 40,
+    width:'100%',
+    height: '100%',
   },
   cardsGroup: {
     display: "flex",
@@ -31,19 +38,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: theme.colors.white,
-    padding: 10,
-    margin: 5,
+
+    
     borderRadius: 15,
     gap: 10,
     flex: 1,
+
   },
   title: {
-    fontFamily: "montserrat-medium",
-    color: theme.colors.gray,
-    fontSize: 16,
+    fontFamily: "inter",
+    color: theme.colors.gray_ultra_light,
+    fontSize: theme.fontSize.medium,
   },
   value: {
-    fontFamily: "montserrat-medium",
-    fontSize: 18,
+    fontFamily: "inter-semiBold",
+    color: theme.colors.primary,
+    fontSize: theme.fontSize.large,
+    flex:1
   },
 });

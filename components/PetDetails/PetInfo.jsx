@@ -3,31 +3,24 @@ import React from "react";
 import { theme } from "../../constants/Colors";
 import MarkFav from "../MarkFav";
 
-export default function PetInfo({ pet }) {
-  const fixedUrl = fixFirebaseUrl(pet.imageUrl);
+export default function ({ pet, customStyle }) {
+ 
 
   return (
-    <View>
-      <Image source={{ uri: fixedUrl }} style={styles.image}></Image>
+    <View style = {customStyle}>
+     
       <View style={styles.content}>
         <View>
           <Text style={styles.petName}>{pet?.name}</Text>
           <Text style={styles.petAddress}>{pet?.address}</Text>
         </View>
-        <MarkFav pet={pet} />
+        <MarkFav pet={pet} customFill={theme.colors.light} size={35}/>
       </View>
     </View>
   );
 }
 
-function fixFirebaseUrl(url) {
-  const parts = url.split("/o/");
-  if (parts.length < 2) return url;
-  const [prefix, rest] = parts;
-  const [path, query] = rest.split("?");
-  const encodedPath = encodeURIComponent(path);
-  return `${prefix}/o/${encodedPath}?${query}`;
-}
+
 
 const styles = StyleSheet.create({
   image: {
@@ -42,15 +35,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 10,
+    
   },
   petName: {
-    fontFamily: "montserrat-bold",
-    fontSize: 27,
+    fontFamily: "inter-bold",
+    fontSize: theme.fontSize.xlarge,
+    color: theme.colors.primary,
   },
   petAddress: {
-    fontFamily: "montserrat",
-    fontSize: 16,
-    color: theme.colors.gray,
+    fontFamily: "inter",
+    fontSize: theme.fontSize.medium,
+    color: theme.colors.primary_light,
     flexShrink: 1,
     flexWrap: "wrap",
   },

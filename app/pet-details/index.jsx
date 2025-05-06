@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Image,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
@@ -114,14 +115,28 @@ export default function PetDetails() {
     }
   };
 
+  function fixFirebaseUrl(url) {
+    const parts = url.split("/o/");
+    if (parts.length < 2) return url;
+    const [prefix, rest] = parts;
+    const [path, query] = rest.split("?");
+    const encodedPath = encodeURIComponent(path);
+    return `${prefix}/o/${encodedPath}?${query}`;
+  }
+
+  const fixedUrl = fixFirebaseUrl(pet.imageUrl);
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView>
-        <PetInfo pet={pet} />
-        <PetSubInfo pet={pet} />
-        <AboutPet pet={pet} />
-        <OwnerInfo pet={pet} />
-        <View style={{ height: 100 }} />
+        <Image source={{ uri: fixedUrl }} style={styles.image}></Image>
+        <View style={styles.content}>
+          <PetInfo pet={pet} customStyle={styles.customStyle} />
+          <PetSubInfo pet={pet} />
+          <AboutPet pet={pet} />
+          <OwnerInfo pet={pet} />
+          <View style={{ height: 100 }} />
+        </View>
       </ScrollView>
 
       <View style={styles.buttonContainer}>
@@ -134,6 +149,17 @@ export default function PetDetails() {
 }
 
 const styles = StyleSheet.create({
+  customStyle: {
+    backgroundColor: theme.colors.accent,
+    borderRadius: 20,
+    width: 350,
+    position: "absolute",
+    top: -50,
+    height: 100,
+    left: "50%",
+    transform: [{ translateX: -175+theme.spacing.large }], // половина ширини
+  },
+
   buttonContainer: {
     position: "absolute",
     width: "100%",
@@ -148,5 +174,19 @@ const styles = StyleSheet.create({
     fontFamily: "montserrat-medium",
     fontSize: 20,
     color: "white",
+  },
+  image: {
+    width: "100%",
+    height: 450,
+    objectFit: "cover",
+    position: "absolute",
+  },
+  content: {
+    borderRadius: 70,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    backgroundColor: theme.colors.white,
+    marginTop: 400,
+    paddingHorizontal: theme.spacing.large,
   },
 });

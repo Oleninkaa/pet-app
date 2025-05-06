@@ -8,27 +8,27 @@ export default function PetSubInfo({ pet }) {
     <View style={styles.container}>
       <View style={styles.cardsGroup}>
         <PetSubInfoCard
-          icon={require("./../../assets/images/calendar.png")}
+          icon={require("./../../assets/images/icons/calendar.png")}
           title={"Age"}
           value={pet?.age + (pet?.age == "1" ? " year" : " years")}
         />
 
         <PetSubInfoCard
-          icon={require("./../../assets/images/bone.png")}
+          icon={require("./../../assets/images/icons/bone.png")}
           title={"Breed"}
           value={pet?.breed}
         />
       </View>
 
-      <View style={styles.cardsGroup}>
+      <View style={[styles.cardsGroup, { marginTop: theme.spacing.small }]}>
         <PetSubInfoCard
-          icon={require("./../../assets/images/sex.png")}
+          icon={require("./../../assets/images/icons/gender-fluid.png")}
           title={"Sex"}
           value={pet?.sex}
         />
 
         <PetSubInfoCard
-          icon={require("./../../assets/images/weight.png")}
+          icon={require("./../../assets/images/icons/weight.png")}
           title={"Weight"}
           value={pet?.weight + " kg"}
         />
@@ -39,7 +39,8 @@ export default function PetSubInfo({ pet }) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
+    marginTop: 50,
+    paddingVertical: theme.spacing.medium,
   },
   image: {
     width: 40,
@@ -48,18 +49,9 @@ const styles = StyleSheet.create({
   cardsGroup: {
     display: "flex",
     flexDirection: "row",
+    gap: theme.spacing.small,
   },
-  card: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: theme.colors.white,
-    padding: 10,
-    margin: 5,
-    borderRadius: 15,
-    gap: 10,
-    flex: 1,
-  },
+  
   ageText: {
     fontFamily: "montserrat-medium",
     color: theme.colors.gray,
