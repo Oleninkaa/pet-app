@@ -38,7 +38,7 @@ export default function UserPost() {
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach((doc) => {
-      setUserPostList((prev) => [...prev, doc.data()]);
+      setUserPostList((prev) => [...prev, { ...doc.data(), id: doc.id }]); // Додаємо id документа
     });
     setLoader(false);
   };
@@ -60,6 +60,7 @@ export default function UserPost() {
       getUserPost();
     };
   };
+
   return (
     <View style={styles.wrapper}>
       <Text style={styles.title}>UserPost</Text>
@@ -67,43 +68,63 @@ export default function UserPost() {
       <FlatList
         data={userPostList}
         numColumns={2}
-        onRefresh={() => getUserPost}
+        columnWrapperStyle={styles.columnWrapper} // Додаємо відступи між колонками
+        contentContainerStyle={styles.listContent} // Додаємо відступи зверху/знизу
+        onRefresh={getUserPost} // Виправлено: передаємо функцію без виклику
         refreshing={loader}
-        renderItem={({ item, index }) => (
-          <View>
-            <PetListItem pet={item} key={index} />
+        renderItem={({ item }) => (
+          <View style={styles.itemContainer}>
+            <PetListItem pet={item} key={item.id} /> {/* Використовуємо item.id як ключ */}
             <Pressable
               style={styles.deleteButton}
-              onPress={() => onDeletePost(item?.id)}
+              onPress={() => onDeletePost(item.id)}
             >
               <Text style={styles.deleteButtonText}>Delete</Text>
             </Pressable>
           </View>
         )}
+        ListEmptyComponent={<Text style={styles.emptyText}>No post found</Text>}
       />
-
-      {userPostList?.length == 0 && <Text>No post found</Text>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrapper: {
-    padding: 20,
+    padding: theme.spacing.large,
+    flex: 1,
   },
   title: {
-    fontFamily: "montserrat-medium",
-    fontSize: 30,
+    fontFamily: "inter-bold",
+    fontSize: theme.fontSize.xlarge,
+    color: theme.colors.primary,
+    marginBottom: theme.spacing.medium,
   },
+  columnWrapper: {
+    justifyContent: "space-between",
+    marginBottom: theme.spacing.large, 
+  },
+  listContent: {
+    paddingBottom: theme.spacing.small,
+  },
+
   deleteButton: {
-    backgroundColor: theme.colors.primary_light,
+    backgroundColor: theme.colors.light,
     padding: 5,
     borderRadius: 7,
     marginTop: 5,
-    marginRight: 10,
+    borderWidth: 1,
+    borderColor: theme.colors.accent,
   },
   deleteButtonText: {
-    fontFamily: "montserrat",
+    fontFamily: "inter-bold",
     textAlign: "center",
+    color: theme.colors.accent,
+  },
+  emptyText: {
+    textAlign: "center",
+    marginTop: 20,
+    fontFamily: "inter",
+    color: theme.colors.gray_light,
   },
 });

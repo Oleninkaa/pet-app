@@ -17,7 +17,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { Link } from "expo-router";
 export default function HomeScreen() {
   return (
-    <View style={styles.wrapper}>
+    <ScrollView style={styles.wrapper}>
       <View style={styles.container}>
         <Header />
         <Slider />
@@ -32,7 +32,7 @@ export default function HomeScreen() {
           </View>
         </Link>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

@@ -1,21 +1,26 @@
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { theme } from "../../constants/Colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-export default function OwnerInfo({ pet }) {
-  console.log('\n\n\n -----------', pet);
+export default function OwnerInfo({ pet, initiateChat}) {
+  console.log('\n\n\n', pet);
+  if (pet) {
+    console.log('\n\n\n -----------', pet.username);
+  } else {
+    console.log('Pet is undefined!');
+  }
   return (
-    <View style={styles.container}>
+    <TouchableOpacity onPress={initiateChat} style={styles.container}>
       <View style={styles.card}>
-        <Image source={{ uri: pet?.userImageUrl }} style={styles.image} />
+        <Image source={{ uri: pet?.userImage }} style={styles.image} />
         <View>
-          <Text style={styles.name}>{pet.userName}</Text>
-          <Text style={styles.title}>Pet owner</Text>
+        <Text style={styles.name}>{pet.username}</Text>
+        <Text style={styles.title}>Pet owner</Text>
         </View>
       </View>
       <Ionicons name="send-sharp" size={24} color={theme.colors.primary} />
-    </View>
+    </TouchableOpacity>
   );
 }
 

@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
     height: 150,
   },
   container: {
+    
     overflow: "hidden",
     //marginRight: 10,
     borderColor: theme.colors.gray_ultra_light,
@@ -116,7 +117,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flexWrap: "wrap",
-    backgroundColor: theme.colors.white,
   },
   name: {
     fontSize: theme.fontSize.large,

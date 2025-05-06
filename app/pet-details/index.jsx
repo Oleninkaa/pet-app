@@ -134,7 +134,7 @@ export default function PetDetails() {
           <PetInfo pet={pet} customStyle={styles.customStyle} />
           <PetSubInfo pet={pet} />
           <AboutPet pet={pet} />
-          <OwnerInfo pet={pet} />
+          <OwnerInfo pet={pet} initiateChat={initiateChat}/>
           <View style={{ height: 100 }} />
         </View>
       </ScrollView>

@@ -18,7 +18,6 @@ export default function Inbox() {
 
   const getUserList = async () => {
     setLoader(true);
-    setUserList([]);
     const q = query(
       collection(db, "Chat"),
       where(
@@ -29,38 +28,41 @@ export default function Inbox() {
     );
 
     const querySnapshot = await getDocs(q);
+    const uniqueChats = [];
     querySnapshot.forEach((doc) => {
-      setUserList((prevList) => [...prevList, doc.data()]);
+      const chatData = doc.data();
+      // Перевірка на унікальність (наприклад, за `doc.id`)
+      if (!uniqueChats.some(chat => chat.id === doc.id)) {
+        uniqueChats.push({ ...chatData, id: doc.id });
+      }
     });
+    setUserList(uniqueChats); // Оновлюємо весь масив
     setLoader(false);
   };
 
   const mapOtherUserList = () => {
-    const list = [];
-    userList.forEach((record) => {
+    return userList.map((record) => {
       const otherUser = record.users?.filter(
-        (user) => user?.email != user?.primaryEmailAddress?.emailAddress
+        (userItem) => userItem?.email !== user?.primaryEmailAddress?.emailAddress
       );
-      const result = {
+      return {
         docId: record.id,
         ...otherUser[0],
       };
-      list.push(result);
     });
-    return list;
   };
+
   return (
     <View style={styles.wrapper}>
       <Text style={styles.content}>Inbox</Text>
-
       <FlatList
         style={styles.list}
-        contentContainerStyle={styles.listContent} // Add this
+        contentContainerStyle={styles.listContent}
         refreshing={loader}
-        onRefresh={() => getUserList()}
+        onRefresh={getUserList}
         data={mapOtherUserList()}
-        renderItem={({ item, index }) => (
-          <UserItem userInfo={item} key={index} />
+        renderItem={({ item }) => (
+          <UserItem userInfo={item} key={item.docId} /> // Використовуємо docId як ключ
         )}
         ListEmptyComponent={
           !loader && (
@@ -71,8 +73,7 @@ export default function Inbox() {
               />
               <Text style={styles.emptyTitle}>No messages</Text>
               <Text style={styles.emptyText}>
-                You have nothing on your inbox yet. It`s never too late to change
-                it!
+                You have nothing on your inbox yet. It`s never too late to change it!
               </Text>
             </View>
           )
@@ -81,6 +82,8 @@ export default function Inbox() {
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   wrapper: {
