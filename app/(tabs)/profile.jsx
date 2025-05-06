@@ -122,7 +122,7 @@ export default function Profile() {
             <Ionicons
               name={item.icon}
               size={30}
-              color={theme.colors.primary}
+              color={theme.colors.accent}
               style={styles.icon}
             />
             <Text style={styles.iconName}>{item.name}</Text>
@@ -137,13 +137,14 @@ export default function Profile() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    padding: 20,
-    marginTop: 20,
+    padding: theme.spacing.large
+ 
   },
   content: {
     fontFamily: "inter-bold",
     fontSize: theme.fontSize.xlarge,
-    color: theme.colors.gray_light,
+    color: theme.colors.primary_light,
+
   },
   container: {
     alignItems: "center",
@@ -184,7 +185,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     padding: 10,
-    backgroundColor: theme.colors.primary_light,
+    backgroundColor: theme.colors.light,
     borderRadius: theme.borderRadius.circle,
   },
   iconName: {

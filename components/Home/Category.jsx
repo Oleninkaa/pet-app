@@ -73,7 +73,6 @@ const styles = StyleSheet.create({
     fontFamily: "inter-bold",
     fontSize: theme.fontSize.large,
     color: theme.colors.gray,
-    paddingLeft: theme.spacing.small,
     paddingVertical: theme.spacing.xSmall,
   },
   image: {

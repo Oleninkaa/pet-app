@@ -7,6 +7,31 @@ import Foundation from "@expo/vector-icons/Foundation";
 
 export default function PetListItem({ pet }) {
   const router = useRouter();
+
+  const handleMultiLike = async () => {
+    if (selectedPets.length === 0) return;
+  
+    try {
+      // Отримуємо поточний список улюблених
+      const currentFavs = await Shared.getFavList(user);
+      const currentFavList = currentFavs?.favourites || [];
+      
+      // Створюємо новий список без дублікатів
+      const updatedFavList = [...new Set([...currentFavList, ...selectedPets])];
+      
+      // Оновлюємо на сервері
+      await Shared.updateFav(user, updatedFavList);
+      
+      // Оновлюємо локальний стан
+      setSelectedPets([]);
+      setIsMultiLikeMode(false);
+      // Можна оновити список тварин
+      getPetList(currentCategory); 
+    } catch (error) {
+      console.error("Multi-like failed:", error);
+    }
+  };
+  
   return (
     <>
       {!pet && (
@@ -82,7 +107,7 @@ const styles = StyleSheet.create({
   },
   container: {
     overflow: "hidden",
-    marginRight: 10,
+    //marginRight: 10,
     borderColor: theme.colors.gray_ultra_light,
     borderWidth: 1,
     borderRadius: 10,

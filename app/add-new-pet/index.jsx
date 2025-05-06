@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
-import { theme } from "../../constants/Colors"
+import { theme } from "../../constants/Colors";
 import { Picker } from "@react-native-picker/picker";
 import { db, storage } from "../../config/FirebaseConfig";
 import { collection, doc, getDocs, setDoc } from "firebase/firestore";
@@ -156,6 +156,8 @@ export default function AddNewPet() {
         )}
       </Pressable>
 
+
+<Text style={styles.imageText}>{"Press to add image"}</Text>
       <TouchableOpacity onPress={resetForm} style={styles.clearForm}>
         <Text style={styles.clearFormText}>{"Clear form"}</Text>
       </TouchableOpacity>
@@ -172,22 +174,28 @@ export default function AddNewPet() {
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Pet Category *</Text>
-        <Picker
-          selectedValue={formData.category}
-          onValueChange={(itemValue) => {
-            setSelectedCategory(itemValue);
-            handleInputChange("category", itemValue);
-          }}
-          style={styles.input}
-        >
-          {categoriesList.map((category, index) => (
-            <Picker.Item
-              key={index}
-              label={category.name}
-              value={category.name}
-            />
-          ))}
-        </Picker>
+        <View style={styles.pickerContainer}>
+          {" "}
+          {/* Wrapper View */}
+          <Picker
+            selectedValue={formData.category}
+            onValueChange={(itemValue) => {
+              setSelectedCategory(itemValue);
+              handleInputChange("category", itemValue);
+            }}
+            style={styles.picker}
+            dropdownIconColor={theme.colors.primary} // Style the dropdown icon
+          >
+            {categoriesList.map((category, index) => (
+              <Picker.Item
+                key={index}
+                label={category.name}
+                value={category.name}
+                style={styles.pickerItem}
+              />
+            ))}
+          </Picker>
+        </View>
       </View>
 
       <View style={styles.inputContainer}>
@@ -213,17 +221,23 @@ export default function AddNewPet() {
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Gender *</Text>
-        <Picker
-          selectedValue={formData.sex}
-          onValueChange={(itemValue) => {
-            setGender(itemValue);
+        <View style={styles.pickerContainer}>
+          {" "}
+          {/* Wrapper View */}
+          <Picker
+            selectedValue={formData.sex}
+            onValueChange={(itemValue) => {
+              setGender(itemValue);
             handleInputChange("sex", itemValue);
-          }}
-          style={styles.input}
-        >
-          <Picker.Item label="Male" value="Male" />
-          <Picker.Item label="Female" value="Female" />
-        </Picker>
+            }}
+            style={styles.picker}
+            dropdownIconColor={theme.colors.primary} // Style the dropdown icon
+          >
+             <Picker.Item label="Male" value="Male" />
+             <Picker.Item label="Female" value="Female" />
+          </Picker>
+        </View>
+    
       </View>
 
       <View style={styles.inputContainer}>
@@ -276,58 +290,86 @@ export default function AddNewPet() {
 
 const styles = StyleSheet.create({
   wrapper: {
-    padding: 20,
+    padding: theme.spacing.large,
+    backgroundColor:theme.colors.light,
+  },
+
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: theme.colors.gray_ultra_light,
+    borderRadius:theme.borderRadius.normal,
+    overflow: "hidden", // This is crucial for the border radius to work
+  },
+  picker: {
+    width: "100%",
+    height: 50,
+    backgroundColor: theme.colors.white,
+    color: theme.colors.primary,
+  },
+  pickerItem: {
+    fontFamily:'inter-semiBold',
+    fontSize: theme.fontSize.medium,
   },
   header: {
-    fontFamily: "montserrat-medium",
-    fontSize: 20,
-    marginBottom: 20,
+    fontFamily: "inter-bold",
+    fontSize: theme.fontSize.large,
+    color: theme.colors.primary_light,
+    paddingBottom: theme.spacing.medium,
   },
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 15,
+    width: 150,
+    height: 150,
+    borderRadius: theme.borderRadius.circle,
     borderWidth: 1,
-    borderColor: theme.colors.grey,
-    marginBottom: 20,
+    borderColor: theme.colors.accent,
+    marginBottom: theme.spacing.small,
     alignSelf: "center",
   },
   inputContainer: {
-    marginVertical: 10,
-    fontFamily: "monserrat",
+    marginVertical: theme.spacing.small,
+    
   },
   input: {
-    padding: 12,
+    padding: theme.spacing.medium,
     backgroundColor: theme.colors.white,
-    borderRadius: 7,
+    borderRadius: theme.borderRadius.normal,
     borderWidth: 1,
-    borderColor: theme.colors.grey,
+    borderColor: theme.colors.gray_ultra_light,
   },
   label: {
-    marginVertical: 5,
-    fontFamily: "montserrat-medium",
+    marginVertical: theme.spacing.xSmall,
+    fontFamily: "inter-semiBold",
+    color: theme.colors.primary_light,
   },
   button: {
-    padding: 15,
     backgroundColor: theme.colors.primary,
-    borderRadius: 7,
-    marginVertical: 20,
-    marginBottom: 50,
+    paddingHorizontal: theme.spacing.large,
+    paddingVertical: theme.spacing.small,
+    borderRadius: theme.borderRadius.normal,
+    marginVertical: theme.spacing.xLarge,
   },
   buttonText: {
-    fontFamily: "montserrat-medium",
+    fontFamily: "inter-semiBold",
+    color: theme.colors.white,
+    fontSize: theme.fontSize.large,
     textAlign: "center",
-    color: "white",
   },
+  
   clearForm: {
-    backgroundColor: theme.colors.gray,
-    width: 100,
-    borderRadius: 7,
     marginHorizontal: "auto",
+  },
+
+  imageText:{
+    color: theme.colors.gray_light,
+    textAlign: "center",
+    fontSize: theme.fontSize.small,
+    fontFamily: "inter",
+    marginBottom: theme.spacing.medium,
   },
   clearFormText: {
     color: theme.colors.primary_light,
     textAlign: "center",
-    padding: 10,
+    fontSize: theme.fontSize.medium,
+    fontFamily: "inter",
   },
 });

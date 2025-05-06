@@ -5,44 +5,67 @@ import Shared from "./../Shared/Shared";
 import { useUser } from "@clerk/clerk-expo";
 import { theme } from "../constants/Colors";
 
-export default function MarkFav({ pet, color = "black" }) {
+export default function MarkFav({ pet, color = "black", isSelected, onSelect, selectMode }) {
   const { user } = useUser();
   const [favList, setFavList] = useState([]);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     user && getFav();
-  }, []);
+  }, [user]);
 
   const getFav = async () => {
     const result = await Shared.getFavList(user);
-    setFavList(result?.favourites ? result?.favourites : []);
+    setFavList(result?.favourites || []);
   };
 
-  const addToFav = async () => {
-    const favResult = favList;
-    favResult.push(pet.id);
-    await Shared.updateFav(user, favResult);
-    getFav();
+  const handlePress = async () => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      if (selectMode) {
+        // В режимі вибору просто передаємо подію батьківському компоненту
+        onSelect && onSelect(pet.id);
+      } else {
+        // Звичайний режим - обробляємо одразу
+        if (favList.includes(pet.id)) {
+          await removeFromFav(pet.id);
+        } else {
+          await addToFav(pet.id);
+        }
+      }
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const removeFromFav = async () => {
-    const favResult = favList.filter((item) => item !== pet.id);
-    await Shared.updateFav(user, favResult);
-    getFav();
+  const addToFav = async (petId) => {
+    const updatedFavList = [...favList, petId];
+    await Shared.updateFav(user, updatedFavList);
+    setFavList(updatedFavList);
+  };
+
+  const removeFromFav = async (petId) => {
+    const updatedFavList = favList.filter(id => id !== petId);
+    await Shared.updateFav(user, updatedFavList);
+    setFavList(updatedFavList);
   };
 
   const size = 25;
+  
+  // Визначення стану для відображення
+  const showFilled = selectMode ? isSelected : favList.includes(pet.id);
+  const iconColor = showFilled ? theme.colors.accent : color;
+
   return (
-    <View>
-      {favList.includes(pet.id) ? (
-        <Pressable onPress={removeFromFav}>
-          <Ionicons name="heart" size={size} color={theme.colors.accent} />
-        </Pressable>
-      ) : (
-        <Pressable onPress={() => addToFav()}>
-          <Ionicons name="heart-outline" size={size} color={color} />
-        </Pressable>
-      )}
-    </View>
+    <Pressable onPress={handlePress} disabled={isProcessing}>
+      <Ionicons 
+        name={showFilled ? "heart" : "heart-outline"} 
+        size={size} 
+        color={iconColor} 
+      />
+    </Pressable>
   );
 }
