@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing.medium,
   },
   itemContainer: {
-    paddingBottom: theme.spacing.large,
+
   },
   emptyContainer: {
     flex: 1,

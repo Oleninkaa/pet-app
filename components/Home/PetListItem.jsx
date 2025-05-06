@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.white,
     borderRadius: theme.borderRadius.circle,
     padding: 5,
-    opacity: 0.8,
   },
   image: {
     width: '100%',

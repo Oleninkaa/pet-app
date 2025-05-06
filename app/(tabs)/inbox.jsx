@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, FlatList, Image, Dimensions } from "react-native";
 import React, { useEffect, useState } from "react";
-import { query } from "firebase/database";
-import { collection, getDocs, where } from "firebase/firestore";
+import { query, where, getDocs, doc, getDoc, deleteDoc } from "firebase/firestore";
 import { db } from "./../../config/FirebaseConfig";
 import { useUser } from "@clerk/clerk-expo";
 import { theme } from "./../../constants/Colors";
@@ -16,38 +15,68 @@ export default function Inbox() {
     user && getUserList();
   }, [user]);
 
+  const checkUserExists = async (email) => {
+    try {
+      const userRef = doc(db, "Users", email);
+      const userSnap = await getDoc(userRef);
+      return userSnap.exists();
+    } catch (error) {
+      console.error("Error checking user:", error);
+      return false;
+    }
+  };
+
   const getUserList = async () => {
     setLoader(true);
-    const q = query(
-      collection(db, "Chat"),
-      where(
-        "userIds",
-        "array-contains",
-        user?.primaryEmailAddress?.emailAddress
-      )
-    );
+    setUserList([]);
+    
+    try {
+      const q = query(
+        collection(db, "Chat"),
+        where(
+          "userIds",
+          "array-contains",
+          user?.primaryEmailAddress?.emailAddress
+        )
+      );
 
-    const querySnapshot = await getDocs(q);
-    const uniqueChats = [];
-    querySnapshot.forEach((doc) => {
-      const chatData = doc.data();
-      // Перевірка на унікальність (наприклад, за `doc.id`)
-      if (!uniqueChats.some(chat => chat.id === doc.id)) {
-        uniqueChats.push({ ...chatData, id: doc.id });
+      const querySnapshot = await getDocs(q);
+      const validChats = [];
+
+      // Перевіряємо кожен чат на наявність обох користувачів
+      for (const doc of querySnapshot.docs) {
+        const chatData = doc.data();
+        const otherUser = chatData.users?.find(
+          u => u?.email !== user?.primaryEmailAddress?.emailAddress
+        );
+
+        if (otherUser) {
+          const userExists = await checkUserExists(otherUser.email);
+          if (userExists) {
+            validChats.push({ ...chatData, id: doc.id });
+          } else {
+            // Видаляємо чат, якщо інший користувач не існує
+            await deleteDoc(doc.ref);
+          }
+        }
       }
-    });
-    setUserList(uniqueChats); // Оновлюємо весь масив
-    setLoader(false);
+
+      setUserList(validChats);
+    } catch (error) {
+      console.error("Error fetching chats:", error);
+    } finally {
+      setLoader(false);
+    }
   };
 
   const mapOtherUserList = () => {
     return userList.map((record) => {
-      const otherUser = record.users?.filter(
+      const otherUser = record.users?.find(
         (userItem) => userItem?.email !== user?.primaryEmailAddress?.emailAddress
       );
       return {
         docId: record.id,
-        ...otherUser[0],
+        ...otherUser,
       };
     });
   };
@@ -62,7 +91,7 @@ export default function Inbox() {
         onRefresh={getUserList}
         data={mapOtherUserList()}
         renderItem={({ item }) => (
-          <UserItem userInfo={item} key={item.docId} /> // Використовуємо docId як ключ
+          <UserItem userInfo={item} key={item.docId} />
         )}
         ListEmptyComponent={
           !loader && (
@@ -83,12 +112,10 @@ export default function Inbox() {
   );
 }
 
-
-
 const styles = StyleSheet.create({
   wrapper: {
     padding: theme.spacing.large,
-    flex: 1, // Add this to make wrapper take full height
+    flex: 1,
   },
   content: {
     fontFamily: "inter-bold",
@@ -97,17 +124,16 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.medium,
   },
   list: {
-    flex: 1, // Add this to make FlatList take remaining space
+    flex: 1,
   },
   listContent: {
-    flexGrow: 1, // Add this to allow content to grow
+    flexGrow: 1,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    height: Dimensions.get('window').height - 150, // Adjust this value as needed
-
+    height: Dimensions.get('window').height - 150,
   },
   emptyTitle: {
     fontFamily: "inter-semiBold",
