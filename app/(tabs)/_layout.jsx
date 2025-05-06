@@ -20,7 +20,7 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: theme.colors.white,
           borderTopWidth: 0,
-          height: 50,
+          height: 60,
    
           
           shadowColor: "#000",

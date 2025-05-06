@@ -27,10 +27,12 @@ export default function PetListItem({ pet }) {
             })
           }
         >
-          <View style={styles.heart}>
-            <MarkFav pet={pet} color={theme.colors.gray_light} />
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: pet.imageUrl }} style={styles.image} />
+            <View style={styles.heart}>
+              <MarkFav pet={pet} color={theme.colors.gray_light} />
+            </View>
           </View>
-          <Image source={{ uri: pet.imageUrl }} style={styles.image} />
 
           <View style={styles.textContent}>
             <View style={styles.infoContainer}>
@@ -69,6 +71,23 @@ export default function PetListItem({ pet }) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    overflow: "hidden",
+    borderColor: theme.colors.gray_ultra_light,
+    borderWidth: 1,
+    borderRadius: 10,
+    backgroundColor: theme.colors.white,
+    marginBottom: 16,
+  },
+  imageContainer: {
+    height: 150, // Фіксована висота зображення
+    position: 'relative',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: "cover",
+  },
   heart: {
     position: "absolute",
     top: 5,
@@ -77,31 +96,16 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.white,
     borderRadius: theme.borderRadius.circle,
     padding: 5,
-  },
-  image: {
-    width: '100%',
-    height: 150, // Фіксована висота зображення
-    resizeMode: "cover",
-  },
-  container: {
-    overflow: "hidden",
-    borderColor: theme.colors.gray_ultra_light,
-    borderWidth: 1,
-    borderRadius: 10,
-    flexDirection: "column",
-    backgroundColor: theme.colors.white,
-    marginBottom: 16,
+    opacity: 0.8,
   },
   textContent: {
-    flex: 1, // Розтягується на весь доступний простір
-    justifyContent: 'space-between',
-    paddingHorizontal: 8,
+    padding: 12,
+    flexGrow: 1, // Дозволяє розтягуватись вниз
   },
   infoContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    paddingVertical: 8,
   },
   textWrapper: {
     flex: 1,
@@ -119,6 +123,7 @@ const styles = StyleSheet.create({
     fontFamily: "inter",
     textTransform: "uppercase",
     flexShrink: 1,
+    minHeight: 30, // Мінімальна висота для двох рядків
   },
   sex: {
     padding: 5,
@@ -127,5 +132,6 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.circle,
     justifyContent: 'center',
     alignItems: 'center',
+    textAlign: 'center',
   },
 });
