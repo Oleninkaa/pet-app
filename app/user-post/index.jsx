@@ -5,6 +5,9 @@ import {
   FlatList,
   Pressable,
   Alert,
+  useWindowDimensions,
+  ScrollView
+
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "expo-router";
@@ -15,15 +18,19 @@ import { db } from "../../config/FirebaseConfig";
 import { useUser } from "@clerk/clerk-expo";
 import PetListItem from "../../components/Home/PetListItem";
 
+
 export default function UserPost() {
   const navigation = useNavigation();
   const { user } = useUser();
   const [userPostList, setUserPostList] = useState([]);
   const [loader, setLoader] = useState(false);
+  const { width } = useWindowDimensions();
+
+  const cardWidth = (width - theme.spacing.large * 2 - theme.spacing.medium) / 2;
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: "User Post",
+      headerTitle: "Your Posts",
     });
     user && getUserPost();
   }, [user]);
@@ -38,7 +45,7 @@ export default function UserPost() {
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach((doc) => {
-      setUserPostList((prev) => [...prev, { ...doc.data(), id: doc.id }]); // Додаємо id документа
+      setUserPostList((prev) => [...prev, { ...doc.data(), id: doc.id }]);
     });
     setLoader(false);
   };
@@ -62,19 +69,19 @@ export default function UserPost() {
   };
 
   return (
-    <View style={styles.wrapper}>
-      <Text style={styles.title}>UserPost</Text>
+    <ScrollView style={styles.wrapper}>
+      <Text style={styles.title}>Your Posts</Text>
 
       <FlatList
         data={userPostList}
         numColumns={2}
-        columnWrapperStyle={styles.columnWrapper} // Додаємо відступи між колонками
-        contentContainerStyle={styles.listContent} // Додаємо відступи зверху/знизу
-        onRefresh={getUserPost} // Виправлено: передаємо функцію без виклику
+        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={styles.listContent}
+        onRefresh={getUserPost}
         refreshing={loader}
         renderItem={({ item }) => (
-          <View style={styles.itemContainer}>
-            <PetListItem pet={item} key={item.id} /> {/* Використовуємо item.id як ключ */}
+          <View style={[styles.itemContainer, { width: cardWidth }]}>
+            <PetListItem pet={item} />
             <Pressable
               style={styles.deleteButton}
               onPress={() => onDeletePost(item.id)}
@@ -83,48 +90,63 @@ export default function UserPost() {
             </Pressable>
           </View>
         )}
-        ListEmptyComponent={<Text style={styles.emptyText}>No post found</Text>}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No posts found</Text>
+          </View>
+        }
       />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   wrapper: {
-    padding: theme.spacing.large,
+    paddingHorizontal: theme.spacing.large,
+    paddingTop: theme.spacing.medium,
     flex: 1,
+    backgroundColor: theme.colors.white,
   },
   title: {
     fontFamily: "inter-bold",
-    fontSize: theme.fontSize.xlarge,
+    fontSize: theme.fontSize.large,
     color: theme.colors.primary,
-    marginBottom: theme.spacing.medium,
+    marginBottom: theme.spacing.large,
+    paddingHorizontal: 4,
   },
   columnWrapper: {
     justifyContent: "space-between",
-    marginBottom: theme.spacing.large, 
+    gap:  theme.spacing.medium,
   },
   listContent: {
-    paddingBottom: theme.spacing.small,
+    paddingBottom: theme.spacing.large,
   },
-
+  itemContainer: {
+    marginBottom:  theme.spacing.medium,
+  },
   deleteButton: {
     backgroundColor: theme.colors.light,
-    padding: 5,
-    borderRadius: 7,
-    marginTop: 5,
+    padding: 8,
+    borderRadius: 8,
+    marginTop: 8,
     borderWidth: 1,
     borderColor: theme.colors.accent,
+    alignItems: 'center',
   },
   deleteButtonText: {
     fontFamily: "inter-bold",
-    textAlign: "center",
     color: theme.colors.accent,
+    fontSize: theme.fontSize.medium,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 100,
   },
   emptyText: {
-    textAlign: "center",
-    marginTop: 20,
-    fontFamily: "inter",
+    fontFamily: "inter-medium",
     color: theme.colors.gray_light,
+    fontSize: theme.fontSize.large,
   },
 });

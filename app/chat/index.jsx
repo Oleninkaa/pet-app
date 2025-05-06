@@ -11,6 +11,7 @@ import { db } from "../../config/FirebaseConfig";
 import { useUser } from "@clerk/clerk-expo";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { GiftedChat } from "react-native-gifted-chat";
+import { theme } from "../../constants/Colors";
 
 export default function ChatScreen() {
   const [messages, setMessages] = useState([]);
@@ -84,16 +85,39 @@ export default function ChatScreen() {
     return () => unsubscribe();
   }, [params?.id, isInitialLoad]);
 
-  // Прокрутка при переході на вкладку
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      if (messages.length > 0) {
-        scrollToBottom(false);
-      }
-    });
-    return unsubscribe;
-  }, [navigation, messages]);
+  // Підписка на повідомлення (оновлений useEffect)
+useEffect(() => {
+  GetUserDetails();
 
+  const unsubscribe = onSnapshot(
+    collection(db, "Chat", params?.id, "Messages"),
+    (snapshot) => {
+      const messageData = snapshot.docs
+        .map((doc) => {
+          const data = doc.data();
+          const createdAt = data.createdAt?.toDate 
+            ? data.createdAt.toDate()
+            : new Date(data.createdAt || Date.now());
+
+          return {
+            _id: doc.id,
+            ...data,
+            createdAt,
+          };
+        })
+        .sort((a, b) => b.createdAt - a.createdAt); // Сортування новіших повідомлень першими
+
+      setMessages(messageData);
+
+      if (isInitialLoad && messageData.length > 0) {
+        scrollToBottom(false);
+        setIsInitialLoad(false);
+      }
+    }
+  );
+
+  return () => unsubscribe();
+}, [params?.id, isInitialLoad]);
   // Відправка повідомлення
   const onSend = useCallback(
     async (newMessages = []) => {
@@ -139,6 +163,31 @@ export default function ChatScreen() {
       messagesContainerStyle={{
         paddingBottom: 20, // Це запобігає перекриттю повідомлень
       }}
+
+
+      renderBubble={(props) => (
+        <View
+          style={{
+            backgroundColor: props.currentMessage.user._id === user?.primaryEmailAddress?.emailAddress 
+              ? theme.colors.primary_light // Ваші повідомлення (наприклад, блакитний)
+              : theme.colors.gray_light, // Повідомлення співрозмовника (наприклад, сірий)
+            borderRadius: 12,
+            padding: 10,
+            maxWidth: '80%',
+          }}
+        >
+          {props.currentMessage.text && (
+            <Text
+              style={{
+                color:theme.colors.white // Колір тексту для ваших повідомлень
+                 
+              }}
+            >
+              {props.currentMessage.text}
+            </Text>
+          )}
+        </View>
+      )}
     />
   );
 }

@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, FlatList, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Image,
+  useWindowDimensions,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import Shared from "./../../Shared/Shared";
 import { useUser } from "@clerk/clerk-expo";
@@ -12,6 +19,10 @@ export default function Favourite() {
   const [favIds, setFavIds] = useState([]);
   const [favPetList, setFavPetList] = useState([]);
   const [loader, setLoader] = useState(false);
+  const { width } = useWindowDimensions();
+
+  const cardWidth =
+    (width - theme.spacing.large * 2 - theme.spacing.medium) / 2;
 
   useEffect(() => {
     user && getFavPetIds();
@@ -28,7 +39,7 @@ export default function Favourite() {
   const getFavPetList = async (favId_) => {
     setLoader(true);
     setFavPetList([]);
-    
+
     // If no favorites, skip the query
     if (favId_.length === 0) {
       setLoader(false);
@@ -50,8 +61,8 @@ export default function Favourite() {
   // This function will be passed to PetListItem to handle like removal
   const handleLikeRemoved = (removedPetId) => {
     // Filter out the removed pet from both lists
-    setFavIds(prev => prev.filter(id => id !== removedPetId));
-    setFavPetList(prev => prev.filter(pet => pet.id !== removedPetId));
+    setFavIds((prev) => prev.filter((id) => id !== removedPetId));
+    setFavPetList((prev) => prev.filter((pet) => pet.id !== removedPetId));
   };
 
   return (
@@ -66,9 +77,9 @@ export default function Favourite() {
         onRefresh={getFavPetIds} // Refresh both IDs and list
         refreshing={loader}
         renderItem={({ item }) => (
-          <View style={styles.itemContainer}>
-            <PetListItem 
-              pet={item} 
+          <View style={[styles.itemContainer, { width: cardWidth }]}>
+            <PetListItem
+              pet={item}
               onLikeRemoved={handleLikeRemoved} // Pass the handler
             />
           </View>
@@ -76,9 +87,15 @@ export default function Favourite() {
         ListEmptyComponent={
           !loader && (
             <View style={styles.emptyContainer}>
-              <Image style={styles.emptyImage} source={require("./../../assets/images/no_favs.png")} />
+              <Image
+                style={styles.emptyImage}
+                source={require("./../../assets/images/no_favs.png")}
+              />
               <Text style={styles.emptyTitle}>No favorites</Text>
-              <Text style={styles.emptyText}>You have nothing on your list yet. It`s never too late to change it!</Text>
+              <Text style={styles.emptyText}>
+                You have nothing on your list yet. It`s never too late to change
+                it!
+              </Text>
             </View>
           )
         }
@@ -114,9 +131,8 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyTitle: {
     fontFamily: "inter-semiBold",
@@ -131,10 +147,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     maxWidth: 300,
   },
-  emptyImage:{
+  emptyImage: {
     width: 200,
     height: 200,
     objectFit: "contain",
     marginBottom: theme.spacing.medium,
-  }
+  },
 });

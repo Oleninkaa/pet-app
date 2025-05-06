@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 import React from "react";
 import { theme } from "./../../constants/Colors";
 import { useRouter } from "expo-router";
@@ -7,31 +7,9 @@ import Foundation from "@expo/vector-icons/Foundation";
 
 export default function PetListItem({ pet }) {
   const router = useRouter();
+  const screenWidth = Dimensions.get('window').width;
+  const cardWidth = (screenWidth - 40 - 16) / 2; // Розрахунок ширини картки
 
-  const handleMultiLike = async () => {
-    if (selectedPets.length === 0) return;
-  
-    try {
-      // Отримуємо поточний список улюблених
-      const currentFavs = await Shared.getFavList(user);
-      const currentFavList = currentFavs?.favourites || [];
-      
-      // Створюємо новий список без дублікатів
-      const updatedFavList = [...new Set([...currentFavList, ...selectedPets])];
-      
-      // Оновлюємо на сервері
-      await Shared.updateFav(user, updatedFavList);
-      
-      // Оновлюємо локальний стан
-      setSelectedPets([]);
-      setIsMultiLikeMode(false);
-      // Можна оновити список тварин
-      getPetList(currentCategory); 
-    } catch (error) {
-      console.error("Multi-like failed:", error);
-    }
-  };
-  
   return (
     <>
       {!pet && (
@@ -41,7 +19,7 @@ export default function PetListItem({ pet }) {
       )}
       {pet && (
         <TouchableOpacity
-          style={styles.container}
+          style={[styles.container, { width: cardWidth }]}
           onPress={() =>
             router.push({
               pathname: "/pet-details",
@@ -49,33 +27,40 @@ export default function PetListItem({ pet }) {
             })
           }
         >
-          <View style={styles.imageContainer}>
-            <View style={styles.heart}>
-              <MarkFav pet={pet} color={theme.colors.gray_light} />
-            </View>
-            <Image source={{ uri: pet.imageUrl }} style={styles.image} />
+          <View style={styles.heart}>
+            <MarkFav pet={pet} color={theme.colors.gray_light} />
           </View>
+          <Image source={{ uri: pet.imageUrl }} style={styles.image} />
 
-          <View style={styles.infoContainer}>
-            <View style={styles.infoText}>
-              <Text style={styles.breed}>{pet.breed}</Text>
-              <Text style={styles.name}>{pet.name}</Text>
+          <View style={styles.textContent}>
+            <View style={styles.infoContainer}>
+              <View style={styles.textWrapper}>
+                <Text 
+                  style={styles.breed}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
+                  {pet.breed}
+                </Text>
+                <Text style={styles.name} numberOfLines={1}>
+                  {pet.name}
+                </Text>
+              </View>
+
+              {pet?.sex && (
+                <Foundation
+                  style={[
+                    styles.sex,
+                    {
+                      backgroundColor: theme.colors[`${pet.sex.toLowerCase()}_bg`],
+                    },
+                  ]}
+                  name={`${pet.sex.toLowerCase()}-symbol`}
+                  size={20}
+                  color={theme.colors[pet.sex.toLowerCase()]}
+                />
+              )}
             </View>
-
-            {pet?.sex && (
-              <Foundation
-                style={[
-                  styles.sex,
-                  {
-                    backgroundColor:
-                      theme.colors[`${pet.sex.toLowerCase()}_bg`],
-                  },
-                ]}
-                name={`${pet.sex.toLowerCase()}-symbol`}
-                size={20}
-                color={theme.colors[pet.sex.toLowerCase()]}
-              />
-            )}
           </View>
         </TouchableOpacity>
       )}
@@ -95,65 +80,54 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   image: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    margin: "auto",
-  },
-
-  imageContainer: {
-    width: 170,
-    height: 150,
+    width: '100%',
+    height: 150, // Фіксована висота зображення
+    resizeMode: "cover",
   },
   container: {
-    
     overflow: "hidden",
-    //marginRight: 10,
     borderColor: theme.colors.gray_ultra_light,
     borderWidth: 1,
     borderRadius: 10,
-    display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    flexWrap: "wrap",
+    backgroundColor: theme.colors.white,
+    marginBottom: 16,
+    height: 240, // Фіксована висота всієї картки
+  },
+  textContent: {
+    flex: 1, // Розтягується на весь доступний простір
+    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+  },
+  infoContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    paddingVertical: 8,
+  },
+  textWrapper: {
+    flex: 1,
+    marginRight: 8,
   },
   name: {
     fontSize: theme.fontSize.large,
     color: theme.colors.gray,
     fontFamily: "inter-semiBold",
+    marginTop: 4,
   },
   breed: {
     fontSize: theme.fontSize.small,
     color: theme.colors.gray_ultra_light,
     fontFamily: "inter",
     textTransform: "uppercase",
-    flexWrap: "wrap",
+    flexShrink: 1,
   },
-
   sex: {
     padding: 5,
-    width: 30,
+    minWidth: 30,
     height: 30,
     borderRadius: theme.borderRadius.circle,
-    textAlign: "center",
-    marginVertical: "auto",
-  },
-  infoContainer: {
-    padding: theme.spacing.xSmall,
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-
-    gap: theme.spacing.xSmall,
-    flexWrap: "wrap",
-  },
-  infoText: {
-    flex: 1,
-    flexWrap: "wrap",
-    display: "flex",
-    flexDirection: "column",
-    gap: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

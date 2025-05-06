@@ -17,15 +17,16 @@ import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import EditAvatar from "../../components/EditAvatar";
+import { useAuth } from "@clerk/clerk-expo";
 
 export default function Profile() {
   const { user } = useUser(); // User is definitely authenticated
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
-
+  const { signOut } = useAuth();
   const handleSignOut = async () => {
     try {
-      await user?.delete();
+      await signOut();
       router.push("../login");
     } catch (err) {
       console.error("Sign out error:", err);
