@@ -91,7 +91,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     backgroundColor: theme.colors.white,
     marginBottom: 16,
-    height: 240, // Фіксована висота всієї картки
   },
   textContent: {
     flex: 1, // Розтягується на весь доступний простір

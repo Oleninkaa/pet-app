@@ -57,7 +57,7 @@ export default function PetListByCategory({ customStyle }) {
         <Category category={(value) => getPetList(value)} />
       {petList.length === 0 && (
         <View style={{ alignItems: "center" }}>
-          <Image source={require("./../../assets/images/no_results.png")} />
+          <Image style={styles.image} source={require("./../../assets/images/no_results.png")} />
           <Text style={styles.noPets}>No pets available</Text>
         </View>
       )}
@@ -89,6 +89,11 @@ export default function PetListByCategory({ customStyle }) {
 }
 
 const styles = StyleSheet.create({
+  image:{
+    width: 200,
+    height: 200,
+    resizeMode: "contain",
+  },
   noPets: {
     marginTop: theme.spacing.medium,
     fontFamily: "inter-semiBold",

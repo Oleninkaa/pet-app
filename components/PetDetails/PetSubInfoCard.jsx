@@ -20,8 +20,8 @@ const styles = StyleSheet.create({
 
   imageContainer:{
     backgroundColor: theme.colors.light,
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     padding: 5,
     borderRadius: theme.borderRadius.normal
   },
@@ -48,12 +48,12 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "inter",
     color: theme.colors.gray_ultra_light,
-    fontSize: theme.fontSize.medium,
+    fontSize: theme.fontSize.small,
   },
   value: {
     fontFamily: "inter-semiBold",
     color: theme.colors.primary,
-    fontSize: theme.fontSize.large,
+    fontSize: theme.fontSize.medium,
     flex:1
   },
 });

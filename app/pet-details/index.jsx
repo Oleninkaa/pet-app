@@ -150,14 +150,24 @@ export default function PetDetails() {
 
 const styles = StyleSheet.create({
   customStyle: {
+    zIndex: 100,
     backgroundColor: theme.colors.accent,
     borderRadius: 20,
-    width: 350,
+    width: 300,
     position: "absolute",
     top: -50,
-    height: 100,
+    minHeight: 100,
     left: "50%",
-    transform: [{ translateX: -175+theme.spacing.large }], // половина ширини
+    transform: [{ translateX: -150+theme.spacing.large }],
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 5,
   },
 
   buttonContainer: {
@@ -186,7 +196,16 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     backgroundColor: theme.colors.white,
-    marginTop: 400,
+    marginTop: 380,
     paddingHorizontal: theme.spacing.large,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 5,
   },
 });

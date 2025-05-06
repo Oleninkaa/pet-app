@@ -61,6 +61,7 @@ export default function MarkFav({ pet, color = "black", size = 25, isSelected, o
 
   return (
     <Pressable onPress={handlePress} disabled={isProcessing}>
+
       <Ionicons 
         name={showFilled ? "heart" : "heart-outline"} 
         size={size} 

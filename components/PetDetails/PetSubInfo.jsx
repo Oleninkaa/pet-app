@@ -39,13 +39,10 @@ export default function PetSubInfo({ pet }) {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 50,
+    marginTop:80,
     paddingVertical: theme.spacing.medium,
   },
-  image: {
-    width: 40,
-    height: 40,
-  },
+
   cardsGroup: {
     display: "flex",
     flexDirection: "row",
