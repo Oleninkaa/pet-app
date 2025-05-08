@@ -38,7 +38,8 @@ export default function Profile() {
     { id: 2, name: "Favorites", icon: "heart", path: "/(tabs)/favourite" },
     { id: 3, name: "Inbox", icon: "chatbubble", path: "/(tabs)/inbox" },
     { id: 4, name: "My Post", icon: "bookmark", path: "/user-post" },
-    { id: 5, name: "Logout", icon: "exit", path: "logout" },
+    { id: 5, name: "Take a test", icon: "document", path: "/(test)" },
+    { id: 6, name: "Logout", icon: "exit", path: "logout" },
   ];
 
   const onPressMenu = (menu) => {
