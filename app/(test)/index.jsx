@@ -1,27 +1,49 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import Slider from '@react-native-community/slider';
-
-
+import axios from 'axios';
 
 const questions = [
-  "Я готовий доглядати за тваринкою, водити на грумінг, мити її місце, гуляти з нею.",
-  "Я приймаю закони життя та розумію, що тваринка колись помре.",
-  "Я можу забезпечити тваринці належні умови, такі як великий будинок та двір.",
-  "Мені важливо знати про хронічні захворювання, що характерні для тварини.",
-  "Я хочу собі улюбленця, аби брати його з собою на соціальні заходи та навіть подорожі.",
-  "Я можу приділити достатньо часу для прогулянок та ігор з тваринкою.",
-  "Я хочу незвичайного улюбленця, який є нестандартним вибором для інших.",
+  "Складність догляду (1 - простий, 9 - складний)",
+  "Тривалість життя (1 - коротка, 9 - довга)",
+  "Адаптивність до життя в помешканні (1 - погана, 9 - відмінна)",
+  "Медичні ризики (1 - високі, 9 - низькі)",
+  "Соціальна активність (1 - низька, 9 - висока)",
+  "Потреба у вигулюванні (1 - мінімальна, 9 - висока)",
+  "Популярність (1 - рідкісна, 9 - популярна)"
 ];
 
 export default function App() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [currentRating, setCurrentRating] = useState(5);
-  const [showResults, setShowResults] = useState(false); // Додано стан для відображення результатів
+  const [showResults, setShowResults] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const sendResultsToServer = async (answers) => {
+    setIsLoading(true);
+    try {
+      const response = await axios.post('http://10.0.2.2:5000/api/analyze', {
+        answers: answers
+      });
+      
+      if (response.data.status === "success") {
+        setResult(response.data);
+        Alert.alert("Успіх", response.data.message);
+      } else {
+        Alert.alert("Помилка", response.data.message);
+      }
+      
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Помилка", "Не вдалося зв'язатись з сервером");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleNext = () => {
-    // Додаємо поточну відповідь до масиву
     const newAnswers = [...answers, currentRating];
     setAnswers(newAnswers);
     
@@ -29,26 +51,82 @@ export default function App() {
       setCurrentQuestion(currentQuestion + 1);
       setCurrentRating(5);
     } else {
-      setShowResults(true); // Встановлюємо показ результатів
+      sendResultsToServer(newAnswers);
+      setShowResults(true);
     }
   };
-  console.log(answers);
 
-  if (showResults) {
-    const totalScore = answers.reduce((sum, answer) => sum + answer, 0);
-    const maxScore = questions.length * 9;
-    const percentage = Math.round((totalScore / maxScore * 100));
-
+  if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Результати тесту</Text>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text>Аналізуємо ваші відповіді...</Text>
+      </View>
+    );
+  }
+
+  if (showResults && result) {
+    // Отримуємо топ-3 тварин з відсотками
+    const topPets = result.ranking_with_percentages.slice(0, 3);
+    
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Результати аналізу</Text>
         
-       
+        <Text style={styles.successMessage}>{result.message}</Text>
         
-        <View style={styles.totalScore}>
-          <Text style={styles.scoreText}>Загальний бал: {totalScore}/{maxScore}</Text>
-          <Text style={styles.scoreText}>Відсоток: {percentage}%</Text>
+        {/* П'єдестал */}
+        <View style={styles.podiumContainer}>
+          {/* Друге місце (лівий стовпець) */}
+          {topPets[1] && (
+            <View style={[styles.podiumItem, styles.secondPlace]}>
+              <Text style={styles.podiumPlace}>2</Text>
+              <Text style={styles.podiumPetName}>{topPets[1].split(' (')[0]}</Text>
+              <Text style={styles.podiumPercentage}>
+                {parseFloat(topPets[1].split('(')[1].replace('%)', '')).toFixed(1)}%
+              </Text>
+            </View>
+          )}
+          
+          {/* Перше місце (центральний стовпець) */}
+          {topPets[0] && (
+            <View style={[styles.podiumItem, styles.firstPlace]}>
+              <Text style={styles.podiumPlace}>1</Text>
+              <Text style={styles.podiumPetName}>{topPets[0].split(' (')[0]}</Text>
+              <Text style={styles.podiumPercentage}>
+                {parseFloat(topPets[0].split('(')[1].replace('%)', '')).toFixed(1)}%
+              </Text>
+            </View>
+          )}
+          
+          {/* Третє місце (правий стовпець) */}
+          {topPets[2] && (
+            <View style={[styles.podiumItem, styles.thirdPlace]}>
+              <Text style={styles.podiumPlace}>3</Text>
+              <Text style={styles.podiumPetName}>{topPets[2].split(' (')[0]}</Text>
+              <Text style={styles.podiumPercentage}>
+                {parseFloat(topPets[2].split('(')[1].replace('%)', '')).toFixed(1)}%
+              </Text>
+            </View>
+          )}
         </View>
+        
+        {/* Інші тварини (якщо є) */}
+        {result.ranking_with_percentages.length > 3 && (
+          <>
+            <Text style={styles.subTitle}>Інші варіанти:</Text>
+            {result.ranking_with_percentages.slice(3).map((item, index) => {
+              const parts = item.split(' (');
+              const name = parts[0];
+              const percentage = parseFloat(parts[1].replace('%)', '')).toFixed(1);
+              return (
+                <Text key={index + 3} style={styles.otherPetText}>
+                  {index + 4}. {name} ({percentage}%)
+                </Text>
+              );
+            })}
+          </>
+        )}
         
         <Button 
           title="Почати знову" 
@@ -57,6 +135,7 @@ export default function App() {
             setAnswers([]);
             setCurrentRating(5);
             setShowResults(false);
+            setResult(null);
           }} 
         />
       </View>
@@ -78,7 +157,7 @@ export default function App() {
           style={styles.slider}
           minimumValue={1}
           maximumValue={9}
-          step={1}
+          step={2}
           value={currentRating}
           onValueChange={setCurrentRating}
           minimumTrackTintColor="#1fb28a"
@@ -87,9 +166,9 @@ export default function App() {
         />
         
         <View style={styles.ratingLabels}>
-          <Text>1 (Не погоджуюсь)</Text>
-          <Text>5 (Середнє)</Text>
-          <Text>9 (Повністю погоджуюсь)</Text>
+          <Text>1</Text>
+          <Text>5</Text>
+          <Text>9</Text>
         </View>
       </View>
       
@@ -105,8 +184,6 @@ export default function App() {
   );
 }
 
-// Стилі залишаються незмінними
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -119,14 +196,31 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
+  successMessage: {
+    fontSize: 18,
+    color: 'green',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  subTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+  },
   question: {
     fontSize: 18,
     marginBottom: 40,
     textAlign: 'center',
   },
-  counter: {
+  resultText: {
+    fontSize: 18,
+    marginBottom: 10,
     textAlign: 'center',
-    marginTop: 20,
+  },
+  criterionText: {
+    fontSize: 16,
+    marginBottom: 5,
   },
   sliderContainer: {
     marginBottom: 40,
@@ -145,25 +239,65 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 10,
   },
-  resultItem: {
-    marginBottom: 15,
-    padding: 15,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-  },
-  questionText: {
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  totalScore: {
-    marginVertical: 20,
-    padding: 15,
-    backgroundColor: '#e0f7fa',
-    borderRadius: 8,
-  },
-  scoreText: {
-    fontSize: 18,
+  counter: {
     textAlign: 'center',
+    marginTop: 20,
+  },
+
+  detailText: {
+    fontSize: 16,
+    marginTop: 10,
+    textAlign: 'center',
+    color: '#555',
+  },
+
+  podiumContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    height: 200,
+    marginVertical: 20,
+  },
+  podiumItem: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 5,
+    width: 100,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  firstPlace: {
+    height: 180,
+    backgroundColor: '#FFD700', // золотий
+  },
+  secondPlace: {
+    height: 140,
+    backgroundColor: '#C0C0C0', // срібний
+  },
+  thirdPlace: {
+    height: 100,
+    backgroundColor: '#CD7F32', // бронзовий
+  },
+  podiumPlace: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
     marginBottom: 5,
+  },
+  podiumPetName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+  },
+  podiumPercentage: {
+    fontSize: 14,
+    color: '#fff',
+    marginTop: 5,
+  },
+  otherPetText: {
+    fontSize: 16,
+    marginBottom: 5,
+    textAlign: 'center',
   },
 });
