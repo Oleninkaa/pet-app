@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, ActivityIndicator, Alert } from 'react-native';
-import Slider from '@react-native-community/slider';
-import axios from 'axios';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import Slider from "@react-native-community/slider";
+import axios from "axios";
+import { theme } from "./../../constants/Colors";
 
 const questions = [
-  "Складність догляду (1 - простий, 9 - складний)",
-  "Тривалість життя (1 - коротка, 9 - довга)",
-  "Адаптивність до життя в помешканні (1 - погана, 9 - відмінна)",
-  "Медичні ризики (1 - високі, 9 - низькі)",
-  "Соціальна активність (1 - низька, 9 - висока)",
-  "Потреба у вигулюванні (1 - мінімальна, 9 - висока)",
-  "Популярність (1 - рідкісна, 9 - популярна)"
+  "Я готовий доглядати за тваринкою, водити на грумінг, мити її місце, гуляти з нею.",
+  "Я приймаю закони життя та розумію, що тваринка колись помре.",
+  "Я можу забезпечити тваринці належні умови, такі як великий будинок та двір.",
+  "Мені важливо знати про хронічні захворювання, що характерні для тварини.",
+  "Я хочу собі улюбленця, аби брати його з собою на соціальні заходи та навіть подорожі.",
+  "Я можу приділити достатньо часу для прогулянок та ігор з тваринкою.",
+  "Я хочу незвичайного улюбленця, який є нестандартним вибором для інших.",
 ];
 
 export default function App() {
@@ -24,17 +32,16 @@ export default function App() {
   const sendResultsToServer = async (answers) => {
     setIsLoading(true);
     try {
-      const response = await axios.post('http://10.0.2.2:5000/api/analyze', {
-        answers: answers
+      const response = await axios.post("http://10.0.2.2:5000/api/analyze", {
+        answers: answers,
       });
-      
+
       if (response.data.status === "success") {
         setResult(response.data);
         Alert.alert("Успіх", response.data.message);
       } else {
         Alert.alert("Помилка", response.data.message);
       }
-      
     } catch (error) {
       console.error(error);
       Alert.alert("Помилка", "Не вдалося зв'язатись з сервером");
@@ -46,7 +53,7 @@ export default function App() {
   const handleNext = () => {
     const newAnswers = [...answers, currentRating];
     setAnswers(newAnswers);
-    
+
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setCurrentRating(5);
@@ -68,57 +75,74 @@ export default function App() {
   if (showResults && result) {
     // Отримуємо топ-3 тварин з відсотками
     const topPets = result.ranking_with_percentages.slice(0, 3);
-    
+
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Результати аналізу</Text>
-        
+
         <Text style={styles.successMessage}>{result.message}</Text>
-        
+
         {/* П'єдестал */}
         <View style={styles.podiumContainer}>
           {/* Друге місце (лівий стовпець) */}
           {topPets[1] && (
             <View style={[styles.podiumItem, styles.secondPlace]}>
               <Text style={styles.podiumPlace}>2</Text>
-              <Text style={styles.podiumPetName}>{topPets[1].split(' (')[0]}</Text>
+              <Text style={styles.podiumPetName}>
+                {topPets[1].split(" (")[0]}
+              </Text>
               <Text style={styles.podiumPercentage}>
-                {parseFloat(topPets[1].split('(')[1].replace('%)', '')).toFixed(1)}%
+                {parseFloat(topPets[1].split("(")[1].replace("%)", "")).toFixed(
+                  1
+                )}
+                %
               </Text>
             </View>
           )}
-          
+
           {/* Перше місце (центральний стовпець) */}
           {topPets[0] && (
             <View style={[styles.podiumItem, styles.firstPlace]}>
               <Text style={styles.podiumPlace}>1</Text>
-              <Text style={styles.podiumPetName}>{topPets[0].split(' (')[0]}</Text>
+              <Text style={styles.podiumPetName}>
+                {topPets[0].split(" (")[0]}
+              </Text>
               <Text style={styles.podiumPercentage}>
-                {parseFloat(topPets[0].split('(')[1].replace('%)', '')).toFixed(1)}%
+                {parseFloat(topPets[0].split("(")[1].replace("%)", "")).toFixed(
+                  1
+                )}
+                %
               </Text>
             </View>
           )}
-          
+
           {/* Третє місце (правий стовпець) */}
           {topPets[2] && (
             <View style={[styles.podiumItem, styles.thirdPlace]}>
               <Text style={styles.podiumPlace}>3</Text>
-              <Text style={styles.podiumPetName}>{topPets[2].split(' (')[0]}</Text>
+              <Text style={styles.podiumPetName}>
+                {topPets[2].split(" (")[0]}
+              </Text>
               <Text style={styles.podiumPercentage}>
-                {parseFloat(topPets[2].split('(')[1].replace('%)', '')).toFixed(1)}%
+                {parseFloat(topPets[2].split("(")[1].replace("%)", "")).toFixed(
+                  1
+                )}
+                %
               </Text>
             </View>
           )}
         </View>
-        
+
         {/* Інші тварини (якщо є) */}
         {result.ranking_with_percentages.length > 3 && (
           <>
             <Text style={styles.subTitle}>Інші варіанти:</Text>
             {result.ranking_with_percentages.slice(3).map((item, index) => {
-              const parts = item.split(' (');
+              const parts = item.split(" (");
               const name = parts[0];
-              const percentage = parseFloat(parts[1].replace('%)', '')).toFixed(1);
+              const percentage = parseFloat(parts[1].replace("%)", "")).toFixed(
+                1
+              );
               return (
                 <Text key={index + 3} style={styles.otherPetText}>
                   {index + 4}. {name} ({percentage}%)
@@ -127,16 +151,16 @@ export default function App() {
             })}
           </>
         )}
-        
-        <Button 
-          title="Почати знову" 
+
+        <Button
+          title="Почати знову"
           onPress={() => {
             setCurrentQuestion(0);
             setAnswers([]);
             setCurrentRating(5);
             setShowResults(false);
             setResult(null);
-          }} 
+          }}
         />
       </View>
     );
@@ -144,39 +168,57 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.question}>
-        {questions[currentQuestion]}
-      </Text>
-      
+      <Text style={styles.question}>{questions[currentQuestion]}</Text>
+
       <View style={styles.sliderContainer}>
-        <Text style={styles.ratingText}>
-          Поточний вибір: {currentRating}
-        </Text>
-        
-        <Slider
-          style={styles.slider}
-          minimumValue={1}
-          maximumValue={9}
-          step={2}
-          value={currentRating}
-          onValueChange={setCurrentRating}
-          minimumTrackTintColor="#1fb28a"
-          maximumTrackTintColor="#d3d3d3"
-          thumbTintColor="#1a9274"
-        />
-        
-        <View style={styles.ratingLabels}>
-          <Text>1</Text>
-          <Text>5</Text>
-          <Text>9</Text>
+        <View style={styles.sliderWrapper}>
+          <Slider
+            style={styles.slider}
+            minimumValue={1}
+            maximumValue={9}
+            step={2}
+            value={currentRating}
+            onValueChange={setCurrentRating}
+            minimumTrackTintColor={theme.colors.gray}
+            maximumTrackTintColor={theme.colors.gray}
+            thumbTintColor={theme.colors.accent}
+          />
+          <View style={styles.markerContainer}>
+            {[1, 3, 5, 7, 9].map((value, index) => (
+              <View 
+                key={value} 
+                style={[
+                  styles.marker, 
+                  { 
+                    width: 5 + (index * 5), 
+                    height: 5 + (index * 5),
+                    borderRadius: (5 + (index * 5)) / 2,
+                    marginTop:-1*(1+(index * 5))/ 2
+                  }
+                ]} 
+              />
+            ))}
+          </View>
+          <View style={styles.valueLabels}>
+            <Text>1</Text>
+            <Text>3</Text>
+            <Text>5</Text>
+            <Text>7</Text>
+            <Text>9</Text>
+          </View>
+        </View>
+
+        <View style={styles.agreementLabels}>
+          <Text>Не погоджуюсь</Text>
+          <Text>Повністю погоджуюсь</Text>
         </View>
       </View>
-      
+
       <Button
         title={currentQuestion < questions.length - 1 ? "Далі" : "Завершити"}
         onPress={handleNext}
       />
-      
+
       <Text style={styles.counter}>
         Питання {currentQuestion + 1} з {questions.length}
       </Text>
@@ -187,80 +229,84 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 20,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   successMessage: {
     fontSize: 18,
-    color: 'green',
-    textAlign: 'center',
+    color: "green",
+    textAlign: "center",
     marginBottom: 20,
   },
   subTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 20,
     marginBottom: 10,
   },
   question: {
     fontSize: 18,
     marginBottom: 40,
-    textAlign: 'center',
+    textAlign: "center",
   },
   resultText: {
     fontSize: 18,
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   criterionText: {
     fontSize: 16,
     marginBottom: 5,
   },
   sliderContainer: {
+    display: "flex",
     marginBottom: 40,
   },
   slider: {
-    width: '100%',
+    width: "100%",
     height: 40,
   },
   ratingText: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 18,
     marginBottom: 20,
   },
   ratingLabels: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 10,
+    flexWrap: "wrap",
+    backgroundColor: "green",
   },
   counter: {
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 20,
   },
 
   detailText: {
     fontSize: 16,
     marginTop: 10,
-    textAlign: 'center',
-    color: '#555',
+    textAlign: "center",
+    color: "#555",
   },
 
   podiumContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "center",
     height: 200,
     marginVertical: 20,
   },
   podiumItem: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginHorizontal: 5,
     width: 100,
     borderTopLeftRadius: 10,
@@ -268,36 +314,97 @@ const styles = StyleSheet.create({
   },
   firstPlace: {
     height: 180,
-    backgroundColor: '#FFD700', // золотий
+    backgroundColor: "#FFD700", // золотий
   },
   secondPlace: {
     height: 140,
-    backgroundColor: '#C0C0C0', // срібний
+    backgroundColor: "#C0C0C0", // срібний
   },
   thirdPlace: {
     height: 100,
-    backgroundColor: '#CD7F32', // бронзовий
+    backgroundColor: "#CD7F32", // бронзовий
   },
   podiumPlace: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 5,
   },
   podiumPetName: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
   },
   podiumPercentage: {
     fontSize: 14,
-    color: '#fff',
+    color: "#fff",
     marginTop: 5,
   },
   otherPetText: {
     fontSize: 16,
     marginBottom: 5,
-    textAlign: 'center',
+    textAlign: "center",
+  },
+  sliderWrapper: {
+    position: "relative",
+    marginBottom: 40,
+  },
+  slider: {
+    width: "100%",
+    height: 40,
+  },
+  markerContainer: {
+
+    position: "absolute",
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    top: 10, // Підлаштуйте під ваш слайдер
+    paddingHorizontal: 12, // Відповідає внутрішнім відступам слайдера
+  },
+  marker: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: theme.colors.accent,
+  },
+  ratingLabels: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+    paddingHorizontal: 10, // Щоб відповідало положенню міток
+  },
+  sliderContainer: {
+    marginBottom: 40,
+  },
+  sliderWrapper: {
+    position: "relative",
+  },
+  slider: {
+    width: "100%",
+    height: 40,
+  },
+  markerContainer: {
+    position: "absolute",
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    top: 18,
+    paddingHorizontal: 12,
+  },
+  marker: {
+    backgroundColor: theme.colors.primary_light,
+  },
+  valueLabels: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+    paddingHorizontal: 8,
+  },
+  agreementLabels: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
   },
 });
