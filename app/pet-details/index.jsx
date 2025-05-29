@@ -7,7 +7,7 @@ import {
   Alert,
   Image,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import PetInfo from "../../components/PetDetails/PetInfo";
 import PetSubInfo from "../../components/PetDetails/PetSubInfo";
@@ -27,15 +27,22 @@ import { db } from "../../config/FirebaseConfig";
 
 export default function PetDetails() {
   const pet = useLocalSearchParams();
+
   const navigation = useNavigation();
   const { user } = useUser();
   const router = useRouter();
+
+  const [isMyPet, setIsMyPet] = useState(false);
 
   useEffect(() => {
     navigation.setOptions({
       headerTransparent: true,
       headerTitle: "",
     });
+
+    if (user.primaryEmailAddress.emailAddress === pet.email) {
+      setIsMyPet(true);
+    }
   }, []);
 
   const initiateChat = async () => {
@@ -128,13 +135,19 @@ export default function PetDetails() {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView>
+      <ScrollView style={styles.wrapper}>
+        {isMyPet && (
+          <Image
+            source={require("./../../assets/images/icons/badge.png")}
+            style={styles.badge}
+          ></Image>
+        )}
         <Image source={{ uri: fixedUrl }} style={styles.image}></Image>
         <View style={styles.content}>
           <PetInfo pet={pet} customStyle={styles.customStyle} />
           <PetSubInfo pet={pet} />
           <AboutPet pet={pet} />
-          <OwnerInfo pet={pet} initiateChat={initiateChat}/>
+          <OwnerInfo pet={pet} initiateChat={initiateChat} />
           <View style={{ height: 100 }} />
         </View>
       </ScrollView>
@@ -149,6 +162,15 @@ export default function PetDetails() {
 }
 
 const styles = StyleSheet.create({
+  wrapper: {},
+  badge: {
+    width: 80,
+    height: 80,
+    zIndex: 5,
+    position: `absolute`,
+    top: theme.spacing.medium,
+    right: theme.spacing.medium,
+  },
   customStyle: {
     zIndex: 100,
     backgroundColor: theme.colors.accent,
@@ -158,7 +180,7 @@ const styles = StyleSheet.create({
     top: -50,
     minHeight: 100,
     left: "50%",
-    transform: [{ translateX: -150+theme.spacing.large }],
+    transform: [{ translateX: -150 + theme.spacing.large }],
     shadowColor: "#000",
     shadowOffset: {
       width: 0,

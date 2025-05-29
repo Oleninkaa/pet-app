@@ -6,10 +6,9 @@ import {
   Pressable,
   Alert,
   useWindowDimensions,
-  ScrollView
-
+  ScrollView,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigation } from "expo-router";
 import { theme } from "./../../constants/Colors";
 import { query } from "firebase/database";
@@ -17,7 +16,7 @@ import { collection, deleteDoc, doc, getDocs, where } from "firebase/firestore";
 import { db } from "../../config/FirebaseConfig";
 import { useUser } from "@clerk/clerk-expo";
 import PetListItem from "../../components/Home/PetListItem";
-
+import { useRouter } from "expo-router";
 
 export default function UserPost() {
   const navigation = useNavigation();
@@ -25,8 +24,10 @@ export default function UserPost() {
   const [userPostList, setUserPostList] = useState([]);
   const [loader, setLoader] = useState(false);
   const { width } = useWindowDimensions();
+  const router = useRouter();
 
-  const cardWidth = (width - theme.spacing.large * 2 - theme.spacing.medium) / 2;
+  const cardWidth =
+    (width - theme.spacing.large * 2 - theme.spacing.medium) / 2;
 
   useEffect(() => {
     navigation.setOptions({
@@ -34,6 +35,28 @@ export default function UserPost() {
     });
     user && getUserPost();
   }, [user]);
+
+  const onEditPost = (item) => {
+    // Create a safe copy of the URL by encoding it
+    const safeImageUrl = encodeURI(item.imageUrl);
+
+    router.push({
+      pathname: "../add-new-pet",
+      params: {
+        editMode: "true",
+        id: item.id,
+        name: item.name,
+        category: item.category,
+        breed: item.breed,
+        age: item.age,
+        sex: item.sex,
+        weight: item.weight,
+        address: item.address,
+        about: item.about,
+        imageUrl: safeImageUrl, // Use the encoded URL
+      },
+    });
+  };
 
   const getUserPost = async () => {
     setLoader(true);
@@ -82,12 +105,20 @@ export default function UserPost() {
         renderItem={({ item }) => (
           <View style={[styles.itemContainer, { width: cardWidth }]}>
             <PetListItem pet={item} />
-            <Pressable
-              style={styles.deleteButton}
-              onPress={() => onDeletePost(item.id)}
-            >
-              <Text style={styles.deleteButtonText}>Delete</Text>
-            </Pressable>
+            <View style={styles.buttonContainer}>
+              <Pressable
+                style={[styles.actionButton, styles.editButton]}
+                onPress={() => onEditPost(item)}
+              >
+                <Text style={styles.actionButtonText}>Edit</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.actionButton, styles.deleteButton]}
+                onPress={() => onDeletePost(item.id)}
+              >
+                <Text style={styles.actionButtonText}>Delete</Text>
+              </Pressable>
+            </View>
           </View>
         )}
         ListEmptyComponent={
@@ -116,13 +147,13 @@ const styles = StyleSheet.create({
   },
   columnWrapper: {
     justifyContent: "space-between",
-    gap:  theme.spacing.medium,
+    gap: theme.spacing.medium,
   },
   listContent: {
     paddingBottom: theme.spacing.large,
   },
   itemContainer: {
-    marginBottom:  theme.spacing.medium,
+    marginBottom: theme.spacing.medium,
   },
   deleteButton: {
     backgroundColor: theme.colors.light,
@@ -131,22 +162,45 @@ const styles = StyleSheet.create({
     marginTop: 8,
     borderWidth: 1,
     borderColor: theme.colors.accent,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  deleteButtonText: {
-    fontFamily: "inter-bold",
-    color: theme.colors.accent,
-    fontSize: theme.fontSize.medium,
-  },
+
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 100,
   },
   emptyText: {
     fontFamily: "inter-medium",
     color: theme.colors.gray_light,
     fontSize: theme.fontSize.large,
+  },
+
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: theme.spacing.small,
+  },
+  actionButton: {
+    flex: 1,
+    padding: 8,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  editButton: {
+    backgroundColor: theme.colors.accent,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+  },
+  deleteButton: {
+    backgroundColor: theme.colors.primary_light,
+    borderWidth: 1,
+    borderColor: theme.colors.accent,
+  },
+  actionButtonText: {
+    fontFamily: "inter-bold",
+    fontSize: theme.fontSize.medium,
+    color: theme.colors.white,
   },
 });

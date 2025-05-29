@@ -10,15 +10,22 @@ import {
   ToastAndroid,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import { theme } from "../../constants/Colors";
 import { Picker } from "@react-native-picker/picker";
 import { db, storage } from "../../config/FirebaseConfig";
-import { collection, doc, getDocs, setDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useUser } from "@clerk/clerk-expo";
+import { useLocalSearchParams } from "expo-router";
 
 // Initial form state
 const initialFormData = {
@@ -35,26 +42,51 @@ const initialFormData = {
 export default function AddNewPet() {
   const navigation = useNavigation();
   const [formData, setFormData] = useState(initialFormData);
-  const [gender, setGender] = useState("Male");
   const [categoriesList, setCategoriesList] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("Dogs");
   const [image, setImage] = useState(null);
   const [loader, setLoader] = useState(false);
   const { user } = useUser();
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const [editMode, setEditMode] = useState(false);
+  const [currentDocId, setCurrentDocId] = useState(null);
+  const [initialLoad, setInitialLoad] = useState(true);
 
-  const handleInputChange = (fieldName, fieldValue) => {
-    setFormData((prev) => ({
-      ...prev,
-      [fieldName]: fieldValue,
-    }));
-  };
+  // Initialize form only once when params change
+  useEffect(() => {
+    if (initialLoad && params.editMode === "true") {
+      setEditMode(true);
+      setCurrentDocId(params.id);
+      setFormData({
+        name: params.name || "",
+        category: params.category || "Dogs",
+        breed: params.breed || "",
+        age: params.age || "",
+        sex: params.sex || "Male",
+        weight: params.weight || "",
+        address: params.address || "",
+        about: params.about || "",
+      });
+
+      if (params.imageUrl) {
+        setImage(decodeURI(params.imageUrl));
+      }
+
+      navigation.setOptions({ headerTitle: "Edit Pet" });
+      setInitialLoad(false);
+    }
+  }, [params]);
 
   const getCategories = async () => {
     const snapshot = await getDocs(collection(db, "Category"));
     const categories = snapshot.docs.map((doc) => doc.data());
     setCategoriesList(categories);
   };
+
+  // Stable callback for input changes
+  const handleInputChange = useCallback((fieldName, fieldValue) => {
+    setFormData((prev) => ({ ...prev, [fieldName]: fieldValue }));
+  }, []);
 
   const imagePicker = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -71,27 +103,32 @@ export default function AddNewPet() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: "Add New Pet",
+      headerTitle: editMode ? "Edit Pet" : "Add New Pet",
       headerBackVisible: true,
     });
     getCategories();
-  }, []);
+  }, [editMode]);
 
   const onSubmit = () => {
     if (
-      Object.keys(formData).length != 8 ||
       !formData.name ||
       !formData.breed ||
       !formData.age ||
       !formData.weight ||
       !formData.address ||
-      !formData.about ||
-      !image
+      !formData.about
     ) {
       ToastAndroid.show("Please fill all fields", ToastAndroid.SHORT);
       return;
     }
-    UploadImage();
+
+    if (editMode && image === null) {
+      SaveFromData(null);
+    } else if (!image) {
+      ToastAndroid.show("Please select an image", ToastAndroid.SHORT);
+    } else {
+      UploadImage();
+    }
   };
 
   const UploadImage = async () => {
@@ -111,57 +148,71 @@ export default function AddNewPet() {
     }
   };
 
-  const resetForm = () => {
-    setFormData(initialFormData);
-    setImage(null);
-    setSelectedCategory("Dogs");
-    setGender("Male");
-  };
-
   const SaveFromData = async (imageUrl) => {
     try {
-      const docId = Date.now().toString();
-      await setDoc(doc(db, "Pets", docId), {
+      const petData = {
         ...formData,
-        imageUrl: imageUrl,
         username: user?.fullName,
         email: user?.primaryEmailAddress?.emailAddress,
         userImage: user?.imageUrl,
-        id: docId,
-      });
+      };
 
-      // Reset form after successful submission
+      if (imageUrl) {
+        petData.imageUrl = imageUrl;
+      } else if (editMode && params.imageUrl) {
+        petData.imageUrl = params.imageUrl;
+      }
+
+      if (editMode) {
+        await updateDoc(doc(db, "Pets", currentDocId), petData);
+        ToastAndroid.show("Pet updated successfully", ToastAndroid.SHORT);
+      } else {
+        const docId = Date.now().toString();
+        petData.id = docId;
+        await setDoc(doc(db, "Pets", docId), petData);
+        ToastAndroid.show("Pet added successfully", ToastAndroid.SHORT);
+      }
+
       resetForm();
-
-      setLoader(false);
       router.replace("/(tabs)/home");
     } catch (error) {
       console.error("Error saving data: ", error);
-      setLoader(false);
       ToastAndroid.show("Error saving pet data", ToastAndroid.SHORT);
+    } finally {
+      setLoader(false);
     }
+  };
+
+  const resetForm = () => {
+    setFormData(initialFormData);
+    setImage(null);
+    setEditMode(false);
+    setCurrentDocId(null);
+    setInitialLoad(true);
   };
 
   return (
     <ScrollView style={styles.wrapper}>
-      <Text style={styles.header}>Add new pet for adoption</Text>
+      <Text style={styles.header}>{editMode ? "Edit Pet" : "Add New Pet"}</Text>
+
       <Pressable onPress={imagePicker}>
-        {!image ? (
+        {image ? (
+          <Image style={styles.image} source={{ uri: image }} />
+        ) : (
           <Image
             style={styles.image}
             source={require("./../../assets/images/paw.jpg")}
           />
-        ) : (
-          <Image style={styles.image} source={{ uri: image }} />
         )}
       </Pressable>
 
+      <Text style={styles.imageText}>Press to add image</Text>
 
-<Text style={styles.imageText}>{"Press to add image"}</Text>
       <TouchableOpacity onPress={resetForm} style={styles.clearForm}>
-        <Text style={styles.clearFormText}>{"Clear form"}</Text>
+        <Text style={styles.clearFormText}>Clear form</Text>
       </TouchableOpacity>
 
+      {/* All your form fields remain the same, but with stable handlers */}
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Pet Name *</Text>
         <TextInput
@@ -228,16 +279,15 @@ export default function AddNewPet() {
             selectedValue={formData.sex}
             onValueChange={(itemValue) => {
               setGender(itemValue);
-            handleInputChange("sex", itemValue);
+              handleInputChange("sex", itemValue);
             }}
             style={styles.picker}
             dropdownIconColor={theme.colors.primary} // Style the dropdown icon
           >
-             <Picker.Item label="Male" value="Male" />
-             <Picker.Item label="Female" value="Female" />
+            <Picker.Item label="Male" value="Male" />
+            <Picker.Item label="Female" value="Female" />
           </Picker>
         </View>
-    
       </View>
 
       <View style={styles.inputContainer}>
@@ -281,7 +331,9 @@ export default function AddNewPet() {
         {loader ? (
           <ActivityIndicator size={"large"} color="white" />
         ) : (
-          <Text style={styles.buttonText}>Submit</Text>
+          <Text style={styles.buttonText}>
+            {editMode ? "Update" : "Submit"}
+          </Text>
         )}
       </TouchableOpacity>
     </ScrollView>
@@ -291,13 +343,13 @@ export default function AddNewPet() {
 const styles = StyleSheet.create({
   wrapper: {
     padding: theme.spacing.large,
-    backgroundColor:theme.colors.light,
+    backgroundColor: theme.colors.light,
   },
 
   pickerContainer: {
     borderWidth: 1,
     borderColor: theme.colors.gray_ultra_light,
-    borderRadius:theme.borderRadius.normal,
+    borderRadius: theme.borderRadius.normal,
     overflow: "hidden", // This is crucial for the border radius to work
   },
   picker: {
@@ -307,7 +359,7 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
   },
   pickerItem: {
-    fontFamily:'inter-semiBold',
+    fontFamily: "inter-semiBold",
     fontSize: theme.fontSize.medium,
   },
   header: {
@@ -327,7 +379,6 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginVertical: theme.spacing.small,
-    
   },
   input: {
     padding: theme.spacing.medium,
@@ -354,12 +405,12 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.large,
     textAlign: "center",
   },
-  
+
   clearForm: {
     marginHorizontal: "auto",
   },
 
-  imageText:{
+  imageText: {
     color: theme.colors.gray_light,
     textAlign: "center",
     fontSize: theme.fontSize.small,
