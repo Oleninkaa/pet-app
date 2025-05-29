@@ -1,15 +1,9 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Button,
-  StyleSheet,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
-import Slider from "@react-native-community/slider";
+import { useState } from "react";
+import { View, Text, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import axios from "axios";
 import { theme } from "./../../constants/Colors";
+import { TouchableOpacity } from "react-native";
+import ButtonPressable from "../../components/ButtonPressable";
 
 const questions = [
   "Я готовий доглядати за тваринкою, водити на грумінг, мити її місце, гуляти з нею.",
@@ -20,6 +14,46 @@ const questions = [
   "Я можу приділити достатньо часу для прогулянок та ігор з тваринкою.",
   "Я хочу незвичайного улюбленця, який є нестандартним вибором для інших.",
 ];
+
+const RATING_VALUES = [1, 3, 5, 7, 9];
+
+const getCircleStyle = (value, selected) => {
+  const index = RATING_VALUES.indexOf(value);
+  const size = 20 + index * 10;
+  let color;
+  switch (index) {
+    case 0:
+      color = theme.colors.gray;
+      break;
+    case 1:
+      color = theme.colors.gray_light;
+      break;
+
+    case 2:
+      color = theme.colors.primary;
+      break;
+
+    case 3:
+      color = theme.colors.primary_light;
+      break;
+
+    case 4:
+      color = theme.colors.accent;
+      break;
+    default:
+      color = "#ccc";
+  }
+
+  return {
+    width: size,
+    height: size,
+    borderRadius: size / 2,
+    marginHorizontal: 8,
+    borderWidth: 2,
+    borderColor: selected ? color : "#ccc",
+    backgroundColor: selected ? color : "transparent",
+  };
+};
 
 export default function App() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -151,9 +185,8 @@ export default function App() {
             })}
           </>
         )}
-
-        <Button
-          title="Почати знову"
+        <ButtonPressable
+          text="Почати знову"
           onPress={() => {
             setCurrentQuestion(0);
             setAnswers([]);
@@ -161,6 +194,7 @@ export default function App() {
             setShowResults(false);
             setResult(null);
           }}
+          style={{ marginVertical: theme.spacing.large }}
         />
       </View>
     );
@@ -171,52 +205,33 @@ export default function App() {
       <Text style={styles.question}>{questions[currentQuestion]}</Text>
 
       <View style={styles.sliderContainer}>
-        <View style={styles.sliderWrapper}>
-          <Slider
-            style={styles.slider}
-            minimumValue={1}
-            maximumValue={9}
-            step={2}
-            value={currentRating}
-            onValueChange={setCurrentRating}
-            minimumTrackTintColor={theme.colors.gray}
-            maximumTrackTintColor={theme.colors.gray}
-            thumbTintColor={theme.colors.accent}
-          />
-          <View style={styles.markerContainer}>
-            {[1, 3, 5, 7, 9].map((value, index) => (
-              <View 
-                key={value} 
-                style={[
-                  styles.marker, 
-                  { 
-                    width: 5 + (index * 5), 
-                    height: 5 + (index * 5),
-                    borderRadius: (5 + (index * 5)) / 2,
-                    marginTop:-1*(1+(index * 5))/ 2
-                  }
-                ]} 
-              />
-            ))}
-          </View>
-          <View style={styles.valueLabels}>
-            <Text>1</Text>
-            <Text>3</Text>
-            <Text>5</Text>
-            <Text>7</Text>
-            <Text>9</Text>
+        <View>
+          <View style={styles.scaleContainer}>
+            <View style={styles.circlesRow}>
+              {RATING_VALUES.map((value) => (
+                <TouchableOpacity
+                  key={value}
+                  onPress={() => setCurrentRating(value)}
+                  style={getCircleStyle(value, currentRating === value)}
+                />
+              ))}
+            </View>
           </View>
         </View>
 
         <View style={styles.agreementLabels}>
-          <Text>Не погоджуюсь</Text>
-          <Text>Повністю погоджуюсь</Text>
+          <Text style={styles.agreementLabel}>Не погоджуюсь</Text>
+          <Text style={styles.agreementLabel}>Повністю погоджуюсь</Text>
         </View>
       </View>
-
-      <Button
-        title={currentQuestion < questions.length - 1 ? "Далі" : "Завершити"}
+      <ButtonPressable
+        text={currentQuestion < questions.length - 1 ? "Далі" : "Завершити"}
         onPress={handleNext}
+        style={
+          currentQuestion >= questions.length - 1 && {
+            backgroundColor: theme.colors.accent,
+          }
+        }
       />
 
       <Text style={styles.counter}>
@@ -233,27 +248,35 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: theme.fontSize.xlarge,
+    fontFamily: "inter-bold",
     marginBottom: 20,
     textAlign: "center",
+    color: theme.colors.primary,
   },
   successMessage: {
-    fontSize: 18,
-    color: "green",
+    fontSize: theme.fontSize.medium,
+    fontFamily: "inter-semiBold",
     textAlign: "center",
+    color: theme.colors.primary_light,
     marginBottom: 20,
   },
   subTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: theme.fontSize.large,
+    fontFamily: "inter-semiBold",
+    color: theme.colors.primary,
     marginTop: 20,
     marginBottom: 10,
   },
   question: {
-    fontSize: 18,
-    marginBottom: 40,
+    fontSize: theme.fontSize.large,
+    fontFamily: "inter",
+    marginBottom: theme.spacing.small,
     textAlign: "center",
+    color: theme.colors.gray,
+    backgroundColor: theme.colors.white,
+    padding: theme.spacing.small,
+    borderRadius: theme.borderRadius.normal,
   },
   resultText: {
     fontSize: 18,
@@ -313,49 +336,50 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 10,
   },
   firstPlace: {
-    height: 180,
-    backgroundColor: "#FFD700", // золотий
+    height: 200,
+    backgroundColor: theme.colors.accent,
   },
   secondPlace: {
-    height: 140,
-    backgroundColor: "#C0C0C0", // срібний
+    height: 160,
+    backgroundColor: theme.colors.primary_light,
   },
   thirdPlace: {
-    height: 100,
-    backgroundColor: "#CD7F32", // бронзовий
+    height: 120,
+    backgroundColor: theme.colors.gray_ultra_light,
   },
   podiumPlace: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
+    fontSize: theme.fontSize.xlarge,
+    fontFamily: "inter-bold",
+    textAlign: "center",
+    color: theme.colors.white,
     marginBottom: 5,
   },
   podiumPetName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
+    fontSize: theme.fontSize.medium,
+    fontFamily: "inter-semiBold",
     textAlign: "center",
+    color: theme.colors.light,
   },
   podiumPercentage: {
-    fontSize: 14,
-    color: "#fff",
+    fontSize: theme.fontSize.small,
+    fontFamily: "inter-semiBold",
+    textAlign: "center",
+    color: theme.colors.light,
     marginTop: 5,
   },
   otherPetText: {
-    fontSize: 16,
-    marginBottom: 5,
+    fontSize: theme.fontSize.medium,
+    fontFamily: "inter-semiBold",
     textAlign: "center",
+    color: theme.colors.gray,
+    marginBottom: 10,
   },
-  sliderWrapper: {
-    position: "relative",
-    marginBottom: 40,
-  },
+
   slider: {
     width: "100%",
     height: 40,
   },
   markerContainer: {
-
     position: "absolute",
     width: "100%",
     flexDirection: "row",
@@ -378,9 +402,7 @@ const styles = StyleSheet.create({
   sliderContainer: {
     marginBottom: 40,
   },
-  sliderWrapper: {
-    position: "relative",
-  },
+
   slider: {
     width: "100%",
     height: 40,
@@ -393,9 +415,7 @@ const styles = StyleSheet.create({
     top: 18,
     paddingHorizontal: 12,
   },
-  marker: {
-    backgroundColor: theme.colors.primary_light,
-  },
+
   valueLabels: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -406,5 +426,27 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 20,
+  },
+
+  agreementLabel: {
+    fontSize: theme.fontSize.medium,
+    fontFamily: "inter",
+    color: theme.colors.gray_light,
+  },
+
+  scaleContainer: {
+    alignItems: "center",
+    marginTop: theme.spacing.large,
+  },
+  circlesRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  scaleLabel: {
+    fontSize: 14,
+    color: "#4A4A4A",
+    marginVertical: 4,
   },
 });
