@@ -14,7 +14,7 @@ export default function UserItem({ userInfo }) {
         <Text style={styles.userName}>{userInfo?.name}</Text>
       </View>
 
-      <View style={styles.line}></View>
+
     </Link>
   );
 }
@@ -26,6 +26,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
+    borderBottomWidth: 1,
+    width: `100%`,
+    borderColor: theme.colors.gray_ultra_light,
+    paddingVertical: theme.spacing.medium
   },
   image: {
     width: 40,
@@ -36,5 +40,5 @@ const styles = StyleSheet.create({
     fontFamily: "montserrat-medium",
     fontSize: 20,
   },
-  line: { borderWidth: 0.2, marginVertical: 7, borderColor: theme.colors.gray },
+  
 });
