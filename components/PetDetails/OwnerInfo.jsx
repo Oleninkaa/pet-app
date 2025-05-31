@@ -15,8 +15,8 @@ export default function OwnerInfo({ pet, initiateChat}) {
       <View style={styles.card}>
         <Image source={{ uri: pet?.userImage }} style={styles.image} />
         <View>
-        <Text style={styles.name}>{pet.username}</Text>
-        <Text style={styles.title}>Pet owner</Text>
+          <Text style={styles.name}>{pet.username}</Text>
+          <Text style={styles.title}>Pet owner</Text>
         </View>
       </View>
       <Ionicons name="send-sharp" size={24} color={theme.colors.primary} />
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 20,
-
+    flexWrap: `wrap`,
     flex: 1,
   },
 });
