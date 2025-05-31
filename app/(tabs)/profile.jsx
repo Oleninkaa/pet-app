@@ -24,12 +24,39 @@ export default function Profile() {
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
   const { signOut } = useAuth();
+
   const handleSignOut = async () => {
     try {
       await signOut();
       router.push("../login");
     } catch (err) {
       console.error("Sign out error:", err);
+    }
+  };
+
+  const handleDeleteProfile = async () => {
+    try {
+      Alert.alert(
+        "Delete Profile",
+        "Are you sure you want to delete your profile? This action cannot be undone.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: async () => {
+              await user?.delete();
+              router.push("../login");
+            },
+          },
+        ]
+      );
+    } catch (err) {
+      console.error("Delete profile error:", err);
+      Alert.alert("Error", "Failed to delete profile. Please try again.");
     }
   };
 
@@ -40,11 +67,16 @@ export default function Profile() {
     { id: 4, name: "My Post", icon: "bookmark", path: "/user-post" },
     { id: 5, name: "Take a test", icon: "document", path: "/(test)" },
     { id: 6, name: "Logout", icon: "exit", path: "logout" },
+    { id: 7, name: "Delete profile", icon: "trash", path: "delete" },
   ];
 
   const onPressMenu = (menu) => {
-    if (menu.name === "Logout") {
+    if (menu.path === "logout") {
       handleSignOut();
+      return;
+    }
+    if (menu.path === "delete") {
+      handleDeleteProfile();
       return;
     }
     router.push(menu.path);
@@ -124,8 +156,8 @@ export default function Profile() {
             <Ionicons
               name={item.icon}
               size={30}
-              color={theme.colors.accent}
-              style={styles.icon}
+              color={item.id === 7 ? theme.colors.female : theme.colors.accent}
+              style={item.id === 7 ? styles.deleteIcon : styles.icon}
             />
             <Text style={styles.iconName}>{item.name}</Text>
           </TouchableOpacity>
@@ -135,18 +167,15 @@ export default function Profile() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    padding: theme.spacing.large
- 
+    padding: theme.spacing.large,
   },
   content: {
     fontFamily: "inter-bold",
     fontSize: theme.fontSize.xlarge,
     color: theme.colors.primary_light,
-
   },
   container: {
     alignItems: "center",
@@ -194,5 +223,10 @@ const styles = StyleSheet.create({
     fontFamily: "inter",
     fontSize: theme.fontSize.large,
     color: theme.colors.gray_light,
+  },
+  deleteIcon: {
+    padding: 10,
+    backgroundColor: theme.colors.female_bg,
+    borderRadius: theme.borderRadius.circle,
   },
 });
