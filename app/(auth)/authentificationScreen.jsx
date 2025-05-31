@@ -138,6 +138,18 @@ export default function AuthenticationScreen() {
               placeholder={"Password"}
               autoCapitalize="none"
             />
+
+            <View style={styles.resetPassword}>
+              <Link
+                href={{
+                  pathname: "../(auth)/resetPassword",
+                }}
+                style={styles.routingLink}
+                asChild
+              >
+                <Text style={styles.resetPasswordText}>Forgot password?</Text>
+              </Link>
+            </View>
           </View>
 
           <ButtonPressable text={"Login"} onPress={handleSignIn} />
@@ -295,5 +307,14 @@ const styles = StyleSheet.create({
     fontFamily: "inter",
     color: theme.colors.gray_light,
     fontSize: theme.fontSize.medium,
+  },
+
+  resetPassword: {
+    alignSelf: `flex-end`,
+  },
+  resetPasswordText: {
+    fontFamily: "inter-bold",
+    color: theme.colors.gray_light,
+    fontSize: theme.fontSize.small,
   },
 });
