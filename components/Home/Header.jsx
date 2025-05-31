@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Image } from "react-native";
 import React from "react";
 import { useUser } from "@clerk/clerk-expo";
 import { theme } from "../../constants/Colors";
+import { Link } from "expo-router";
 
 export default function Header() {
   const { user } = useUser();
@@ -12,7 +13,8 @@ export default function Header() {
         <Text style={styles.name}>{user?.fullName}</Text>
       </View>
 
-      <Image source={{ uri: user?.imageUrl }} style={styles.image}></Image>
+
+      <Link href="../(tabs)/profile"><Image source={{ uri: user?.imageUrl }} style={styles.image}></Image></Link>
     </View>
   );
 }
