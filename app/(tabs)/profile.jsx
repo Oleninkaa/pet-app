@@ -70,6 +70,8 @@ export default function Profile() {
     { id: 7, name: "Delete profile", icon: "trash", path: "delete" },
   ];
 
+ 
+
   const onPressMenu = (menu) => {
     if (menu.path === "logout") {
       handleSignOut();
